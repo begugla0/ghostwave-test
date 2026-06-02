@@ -774,18 +774,18 @@ _uninstall_panel() {
     echo ""
     log_step "Удаление Panel"
 
-    if [[ ! -f /opt/ghostwave/docker/docker-compose.yml ]]; then
+    if [[ ! -f /opt/ghostwave/docker-compose.yml ]]; then
         log_warn "Panel не найдена (/opt/ghostwave не существует)"
         return
     fi
 
     if ask_yn "Удалить данные PostgreSQL (база пользователей)?" "n"; then
         run_bg "Остановка и удаление контейнеров + volumes" \
-            bash -c "cd /opt/ghostwave/docker && docker compose down -v --remove-orphans"
+            bash -c "cd /opt/ghostwave && docker compose down -v --remove-orphans"
         log_ok "Контейнеры и данные удалены"
     else
         run_bg "Остановка контейнеров (данные сохранены)" \
-            bash -c "cd /opt/ghostwave/docker && docker compose down --remove-orphans"
+            bash -c "cd /opt/ghostwave && docker compose down --remove-orphans"
         log_ok "Контейнеры остановлены (postgres-data volume сохранён)"
     fi
 
@@ -854,9 +854,9 @@ do_restart() {
         ask "Ваш выбор" "3"
         case "$REPLY" in
             1|3)
-                if [[ -f /opt/ghostwave/docker/docker-compose.yml ]]; then
+                if [[ -f /opt/ghostwave/docker-compose.yml ]]; then
                     run_bg "Перезапуск Panel" \
-                        bash -c "cd /opt/ghostwave/docker && docker compose restart"
+                        bash -c "cd /opt/ghostwave && docker compose restart"
                     log_ok "Panel перезапущена"
                 else
                     log_warn "Panel не установлена"
@@ -2024,11 +2024,26 @@ EOF
 
 start_panel_services() {
     log_step "Запуск сервисов Panel"
-    cd /opt/ghostwave/docker
+    cd /opt/ghostwave   # docker-compose.yml теперь в корне, не в /docker/
 
-    # Сборка образа Panel (pip install происходит здесь, один раз)
-    run_bg "Сборка образа Panel (установка зависимостей)" \
-        docker compose build panel
+    # Сносим старые контейнеры если есть (иначе postgres с другим паролем не поднимется)
+    local old_running=0
+    docker ps -a --format '{{.Names}}' 2>/dev/null | grep -q "ghostwave-" && old_running=1 || true
+    if [[ $old_running -eq 1 ]]; then
+        log_info "Останавливаем старые контейнеры..."
+        docker compose down --remove-orphans &>/dev/null || true
+        # Удаляем postgres volume только если пересоздаём с новым паролем
+        local old_env_db=""
+        old_env_db=$(docker inspect ghostwave-postgres 2>/dev/null \
+            | python3 -c "import sys,json; e=[x for x in json.load(sys.stdin)[0]['Config']['Env'] if x.startswith('POSTGRES_PASSWORD=')]; print(e[0].split('=',1)[1] if e else '')" 2>/dev/null) || old_env_db=""
+        if [[ -n "$old_env_db" && "$old_env_db" != "${DB_PASSWORD}" ]]; then
+            log_warn "Пароль БД изменился — удаляем старый volume postgres"
+            docker volume rm ghostwave_postgres-data &>/dev/null || true
+        fi
+    fi
+
+    # Сборка образа Panel
+    run_bg "Сборка образа Panel" docker compose build panel
 
     run_bg "Загрузка образов PostgreSQL, Redis, Caddy" \
         docker compose pull postgres redis caddy
@@ -2050,6 +2065,11 @@ start_panel_services() {
         (( attempts++ )) || true
         printf "\r  ${C}⠋${NC} ${D}Ожидание PostgreSQL... %ds${NC}" "$((attempts * 2))"
     done
+    if (( attempts >= 30 )); then
+        echo -e "\r  ${CROSS} PostgreSQL не поднялся — смотрите: docker logs ghostwave-postgres"
+        log_warn "Попробуйте вручную: cd /opt/ghostwave && docker compose up -d"
+        return
+    fi
 
     run_bg "Запуск Panel + Caddy" \
         docker compose up -d panel caddy
@@ -2069,7 +2089,8 @@ start_panel_services() {
         printf "\r  ${C}⠋${NC} ${D}Ожидание Panel... %ds${NC}" "$((attempts * 3))"
     done
     if (( attempts >= 40 )); then
-        echo -e "\r  ${WARN} ${Y}Panel не ответила за 120с — проверьте логи${NC}"
+        echo -e "\r  ${WARN} ${Y}Panel не ответила за 120с${NC}"
+        log_info "Логи: docker logs ghostwave-panel --tail 30"
     fi
 }
 
@@ -2220,8 +2241,8 @@ EOF
 
     echo -e "  ${D}Полезные команды:${NC}"
     if [[ "$INSTALL_MODE" == "panel" || "$INSTALL_MODE" == "panel+node" ]]; then
-        echo -e "  ${C}docker compose -f /opt/ghostwave/docker/docker-compose.yml logs -f${NC}"
-        echo -e "  ${C}docker compose -f /opt/ghostwave/docker/docker-compose.yml restart${NC}"
+        echo -e "  ${C}docker compose -f /opt/ghostwave/docker-compose.yml logs -f${NC}"
+        echo -e "  ${C}docker compose -f /opt/ghostwave/docker-compose.yml restart${NC}"
     fi
     if [[ "$INSTALL_MODE" == "node" || "$INSTALL_MODE" == "panel+node" ]]; then
         echo -e "  ${C}docker logs ghostwave-node -f${NC}"
