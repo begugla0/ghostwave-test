@@ -1239,7 +1239,10 @@ async def lifespan(app: FastAPI):
 
     # Инициализируем схему БД
     async with engine.begin() as conn:
-        await conn.execute(text(SCHEMA_SQL))
+        for stmt in SCHEMA_SQL.split(";"):
+            stmt = stmt.strip()
+            if stmt:
+                await conn.execute(text(stmt))
     log.info("Database schema ready")
 
     # Создаём admin если нет
