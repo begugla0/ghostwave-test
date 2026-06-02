@@ -1,30 +1,26 @@
-version: "3.9"
-
-# Запускается на каждом VPN-сервере отдельно
 services:
   node-agent:
-    image: ghostwave-node:latest
     build:
-      context: ../node
-      dockerfile: ../docker/Dockerfile.node
+      context: .
+      dockerfile: Dockerfile.node
+    image: ghostwave-node:latest
     container_name: ghostwave-node
     restart: unless-stopped
-    network_mode: host   # нужен для TUN интерфейса и прямого доступа к портам
+    network_mode: host
     cap_add:
-      - NET_ADMIN        # нужен для TUN/iptables
+      - NET_ADMIN
     devices:
-      - /dev/net/tun     # TUN устройство
+      - /dev/net/tun
     environment:
-      - NODE_ID=${NODE_ID:-1}
-      - NODE_API_KEY=${NODE_API_KEY}
-      - PANEL_URL=${PANEL_URL}
-      - AGENT_PORT=${AGENT_PORT:-2095}
-      - GHOSTNET_PORT=${GHOSTNET_PORT:-443}
-      - GHOSTNET_DOMAIN=${GHOSTNET_DOMAIN}
-      - GHOSTNET_SECRET=${GHOSTNET_SECRET}
+      NODE_ID:                  "${NODE_ID}"
+      NODE_API_KEY:             "${NODE_API_KEY}"
+      PANEL_URL:                "${PANEL_URL}"
+      AGENT_PORT:               "${AGENT_PORT:-2095}"
+      AGENT_HOST:               "0.0.0.0"
+      GHOSTNET_PORT:            "${GHOSTNET_PORT:-443}"
+      GHOSTNET_DOMAIN:          "${GHOSTNET_DOMAIN}"
+      GHOSTNET_SECRET:          "${GHOSTNET_SECRET}"
+      HEARTBEAT_INTERVAL:       "15"
+      TRAFFIC_REPORT_INTERVAL:  "60"
     volumes:
       - /etc/ghostnet:/etc/ghostnet
-      - node-logs:/app/logs
-
-volumes:
-  node-logs:

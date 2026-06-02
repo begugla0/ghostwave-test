@@ -1,26 +1,22 @@
-version: "3.9"
-
 services:
   panel:
-    image: ghostwave-panel:latest
     build:
-      context: ../panel
-      dockerfile: ../docker/Dockerfile.panel
+      context: .
+      dockerfile: Dockerfile
+    image: ghostwave-panel:latest
     container_name: ghostwave-panel
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:3000:3000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://ghostwave:${DB_PASSWORD}@postgres:5432/ghostwave
-      - REDIS_URL=redis://redis:6379/0
-      - JWT_SECRET=${JWT_SECRET}
-      - SECRET_KEY=${SECRET_KEY}
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
-      - TELEGRAM_ADMIN_IDS=${TELEGRAM_ADMIN_IDS:-[]}
-      - NODE_API_KEY=${NODE_API_KEY}
-      - SUB_BASE_URL=${SUB_BASE_URL}
+      DATABASE_URL: "${DATABASE_URL}"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      JWT_SECRET: "${JWT_SECRET}"
+      SECRET_KEY: "${SECRET_KEY}"
+      NODE_API_KEY: "${NODE_API_KEY}"
+      ADMIN_USERNAME: "${ADMIN_USERNAME}"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}"
+      TELEGRAM_ADMIN_IDS: "${TELEGRAM_ADMIN_IDS}"
+      SUB_BASE_URL: "${SUB_BASE_URL}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -28,17 +24,15 @@ services:
         condition: service_healthy
     networks:
       - ghostwave-net
-    volumes:
-      - panel-logs:/app/logs
 
   postgres:
     image: postgres:16-alpine
     container_name: ghostwave-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB:       ghostwave
-      POSTGRES_USER:     ghostwave
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ghostwave
+      POSTGRES_USER: ghostwave
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -47,22 +41,21 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ghostwave"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
     container_name: ghostwave-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:-ghostwave}
+    command: redis-server --requirepass "${REDIS_PASSWORD}"
     networks:
       - ghostwave-net
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
-  # Nginx reverse proxy с автоматическим SSL (Caddy можно вместо него)
   caddy:
     image: caddy:2-alpine
     container_name: ghostwave-caddy
@@ -71,7 +64,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ../docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data
       - caddy-config:/config
     networks:
@@ -81,7 +74,6 @@ services:
 
 volumes:
   postgres-data:
-  panel-logs:
   caddy-data:
   caddy-config:
 

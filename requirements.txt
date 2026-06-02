@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+pydantic<2.14
+pydantic-settings<2.14
+bcrypt
+pyjwt
+redis[asyncio]
+httpx
+aiogram
+psutil
+cryptography
