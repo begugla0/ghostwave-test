@@ -77,18 +77,21 @@ ask() {
     local prompt="$1"
     local default="${2:-}"
     local hint=""
-    local REPLY=""
     [[ -n "$default" ]] && hint=" ${D}[${default}]${NC}"
     echo -ne "  ${ARROW} ${W}${prompt}${NC}${hint}: "
+    REPLY=""
     read -r REPLY || REPLY=""
+    # Убираем \r (Windows/SSH терминалы)
+    REPLY="${REPLY//$'\r'/}"
     [[ -z "$REPLY" && -n "$default" ]] && REPLY="$default"
 }
 
 ask_secret() {
     local prompt="$1"
-    local REPLY=""
     echo -ne "  ${ARROW} ${W}${prompt}${NC}: "
+    REPLY=""
     read -rs REPLY || REPLY=""
+    REPLY="${REPLY//$'\r'/}"
     echo ""
 }
 
@@ -97,7 +100,6 @@ ask_secret() {
 ask_yn() {
     local prompt="$1"
     local default="${2:-y}"
-    local REPLY=""
     local hint
     if [[ "$default" == "y" ]]; then
         hint="${G}Y${NC}/${D}n${NC}"
@@ -105,7 +107,9 @@ ask_yn() {
         hint="${D}y${NC}/${G}N${NC}"
     fi
     echo -ne "  ${ARROW} ${W}${prompt}${NC} [${hint}]: "
+    REPLY=""
     read -r REPLY || REPLY="$default"
+    REPLY="${REPLY//$'\r'/}"
     REPLY="${REPLY:-$default}"
     if [[ "${REPLY,,}" == "y" ]]; then
         return 0
