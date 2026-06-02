@@ -266,14 +266,15 @@ check_system() {
 
 choose_mode() {
     separator
-    log_step "Выбор режима установки"
+    log_step "Выбор действия"
     echo ""
-    echo -e "  Что устанавливаем на этот сервер?\n"
-    echo -e "  ${W}1)${NC} ${G}Panel${NC}   — управляющий сервер (API, база данных, Telegram бот)"
+    echo -e "  ${W}1)${NC} ${G}Установить Panel${NC}   — управляющий сервер (API, БД, Telegram бот)"
     echo -e "           Один на всю инфраструктуру. Не обязательно вне РФ.\n"
-    echo -e "  ${W}2)${NC} ${C}Node${NC}    — VPN-сервер (GhostNet daemon + агент)"
+    echo -e "  ${W}2)${NC} ${C}Установить Node${NC}    — VPN-сервер (GhostNet daemon + агент)"
     echo -e "           По одному на каждый VPN-сервер. Желательно за рубежом.\n"
-    echo -e "  ${W}3)${NC} ${Y}Panel + Node${NC} — всё на одном сервере (для тестирования)\n"
+    echo -e "  ${W}3)${NC} ${Y}Установить Panel + Node${NC} — всё на одном сервере (тест/мелкий прод)\n"
+    echo -e "  ${W}4)${NC} ${R}Удалить${NC}            — удалить Panel / Node / всё\n"
+    echo -e "  ${W}5)${NC} Перезапустить       — перезапустить Panel / Node\n"
 
     while true; do
         ask "Ваш выбор" "1"
@@ -281,14 +282,18 @@ choose_mode() {
             1) INSTALL_MODE="panel";      break ;;
             2) INSTALL_MODE="node";       break ;;
             3) INSTALL_MODE="panel+node"; break ;;
-            *) log_warn "Введите 1, 2 или 3" ;;
+            4) INSTALL_MODE="uninstall";  break ;;
+            5) INSTALL_MODE="restart";    break ;;
+            *) log_warn "Введите 1–5" ;;
         esac
     done
 
     case "$INSTALL_MODE" in
-        panel)      log_ok "Режим: ${G}Panel${NC}" ;;
-        node)       log_ok "Режим: ${C}Node${NC}" ;;
-        panel+node) log_ok "Режим: ${Y}Panel + Node${NC}" ;;
+        panel)      log_ok "Действие: ${G}Установка Panel${NC}" ;;
+        node)       log_ok "Действие: ${C}Установка Node${NC}" ;;
+        panel+node) log_ok "Действие: ${Y}Установка Panel + Node${NC}" ;;
+        uninstall)  log_ok "Действие: ${R}Удаление${NC}" ;;
+        restart)    log_ok "Действие: Перезапуск" ;;
     esac
 }
 
@@ -721,8 +726,141 @@ _create_node_via_api() {
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
-# ШАГ 5: ПОДТВЕРЖДЕНИЕ
+# УДАЛЕНИЕ
 # ─────────────────────────────────────────────────────────────────────────────
+
+uninstall() {
+    separator
+    log_step "Удаление GhostWave"
+    echo ""
+    echo -e "  ${R}${BOLD}ВНИМАНИЕ: Это удалит все данные без возможности восстановления!${NC}"
+    echo ""
+    echo -e "  ${W}1)${NC} Удалить только Panel"
+    echo -e "  ${W}2)${NC} Удалить только Node"
+    echo -e "  ${W}3)${NC} Удалить всё (Panel + Node)"
+    echo -e "  ${W}4)${NC} Отмена"
+    echo ""
+
+    while true; do
+        ask "Ваш выбор" "4"
+        case "$REPLY" in
+            1) _uninstall_panel; break ;;
+            2) _uninstall_node;  break ;;
+            3) _uninstall_panel; _uninstall_node; break ;;
+            4) log_info "Удаление отменено"; exit 0 ;;
+            *) log_warn "Введите 1, 2, 3 или 4" ;;
+        esac
+    done
+
+    echo ""
+    log_ok "Удаление завершено"
+}
+
+_uninstall_panel() {
+    echo ""
+    log_step "Удаление Panel"
+
+    if [[ ! -f /opt/ghostwave/docker/docker-compose.yml ]]; then
+        log_warn "Panel не найдена (/opt/ghostwave не существует)"
+        return
+    fi
+
+    if ask_yn "Удалить данные PostgreSQL (база пользователей)?" "n"; then
+        run_bg "Остановка и удаление контейнеров + volumes" \
+            bash -c "cd /opt/ghostwave/docker && docker compose down -v --remove-orphans"
+        log_ok "Контейнеры и данные удалены"
+    else
+        run_bg "Остановка контейнеров (данные сохранены)" \
+            bash -c "cd /opt/ghostwave/docker && docker compose down --remove-orphans"
+        log_ok "Контейнеры остановлены (postgres-data volume сохранён)"
+    fi
+
+    if ask_yn "Удалить Docker образ ghostwave-panel?" "y"; then
+        docker rmi ghostwave-panel:latest &>/dev/null || true
+        log_ok "Образ удалён"
+    fi
+
+    if ask_yn "Удалить файлы /opt/ghostwave?" "y"; then
+        rm -rf /opt/ghostwave
+        log_ok "/opt/ghostwave удалён"
+    fi
+
+    # Закрываем порты Panel в файрволе
+    ufw delete allow 80/tcp  >/dev/null 2>&1 || true
+    ufw delete allow 443/tcp >/dev/null 2>&1 || true
+    log_ok "Порты 80/443 закрыты в файрволе"
+}
+
+_uninstall_node() {
+    echo ""
+    log_step "Удаление Node"
+
+    if [[ ! -f /opt/ghostwave-node/docker-compose.yml ]]; then
+        log_warn "Node не найдена (/opt/ghostwave-node не существует)"
+        return
+    fi
+
+    run_bg "Остановка Node Agent" \
+        bash -c "cd /opt/ghostwave-node && docker compose down --remove-orphans"
+
+    if ask_yn "Удалить Docker образ ghostwave-node?" "y"; then
+        docker rmi ghostwave-node:latest &>/dev/null || true
+        log_ok "Образ удалён"
+    fi
+
+    if ask_yn "Удалить файлы /opt/ghostwave-node и /etc/ghostnet?" "y"; then
+        rm -rf /opt/ghostwave-node /etc/ghostnet
+        log_ok "Файлы ноды удалены"
+    fi
+
+    # Закрываем порты ноды
+    local agent_port="2095"
+    [[ -f /opt/ghostwave-node/.env.node ]] && \
+        agent_port=$(grep AGENT_PORT /opt/ghostwave-node/.env.node 2>/dev/null | cut -d= -f2 || echo "2095")
+    ufw delete allow "${agent_port}/tcp" >/dev/null 2>&1 || true
+    ufw delete allow "443/tcp"           >/dev/null 2>&1 || true
+    ufw delete allow "8443/tcp"          >/dev/null 2>&1 || true
+    log_ok "Порты ноды закрыты в файрволе"
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ОБНОВЛЕНИЕ (перезапуск с пересборкой)
+# ─────────────────────────────────────────────────────────────────────────────
+
+do_restart() {
+    separator
+    log_step "Перезапуск / обновление"
+    echo ""
+    echo -e "  ${W}1)${NC} Перезапустить Panel"
+    echo -e "  ${W}2)${NC} Перезапустить Node"
+    echo -e "  ${W}3)${NC} Перезапустить всё"
+    echo ""
+
+    while true; do
+        ask "Ваш выбор" "3"
+        case "$REPLY" in
+            1|3)
+                if [[ -f /opt/ghostwave/docker/docker-compose.yml ]]; then
+                    run_bg "Перезапуск Panel" \
+                        bash -c "cd /opt/ghostwave/docker && docker compose restart"
+                    log_ok "Panel перезапущена"
+                else
+                    log_warn "Panel не установлена"
+                fi
+                [[ "$REPLY" == "1" ]] && break ;;& # fallthrough для 3
+            2|3)
+                if [[ -f /opt/ghostwave-node/docker-compose.yml ]]; then
+                    run_bg "Перезапуск Node" \
+                        bash -c "cd /opt/ghostwave-node && docker compose restart"
+                    log_ok "Node перезапущена"
+                else
+                    log_warn "Node не установлена"
+                fi
+                break ;;
+            *) log_warn "Введите 1, 2 или 3" ;;
+        esac
+    done
+}
 
 show_summary() {
     separator
@@ -771,7 +909,9 @@ show_summary() {
 write_panel_configs() {
     log_step "Запись конфигурации Panel"
     mkdir -p /opt/ghostwave/docker
+    mkdir -p /opt/ghostwave/panel
 
+    # ── .env ──────────────────────────────────────────────────────────────
     cat > /opt/ghostwave/.env << EOF
 # GhostWave Panel — $(date '+%Y-%m-%d %H:%M:%S')
 DB_PASSWORD=${DB_PASSWORD}
@@ -788,6 +928,40 @@ EOF
     chmod 600 /opt/ghostwave/.env
     log_ok ".env создан (chmod 600)"
 
+    # ── requirements.txt (pip install через файл — надёжнее bash -c "...") ─
+    cat > /opt/ghostwave/panel/requirements.txt << 'EOF'
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy[asyncio]==2.0.35
+asyncpg==0.29.0
+pydantic==2.9.2
+pydantic-settings==2.5.2
+bcrypt==4.2.0
+pyjwt==2.9.0
+redis[asyncio]==5.1.1
+httpx==0.27.2
+aiogram==3.13.0
+psutil==6.0.0
+cryptography==43.0.1
+alembic==1.13.3
+EOF
+    log_ok "requirements.txt создан"
+
+    # ── Dockerfile Panel ──────────────────────────────────────────────────
+    cat > /opt/ghostwave/panel/Dockerfile << 'EOF'
+FROM python:3.12-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && \
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 3000
+CMD ["python", "main.py"]
+EOF
+    log_ok "Dockerfile создан"
+
+    # ── Caddyfile ─────────────────────────────────────────────────────────
     cat > /opt/ghostwave/docker/Caddyfile << EOF
 ${PANEL_DOMAIN} {
     reverse_proxy /api/*  ghostwave-panel:3000
@@ -802,25 +976,29 @@ ${PANEL_DOMAIN} {
 EOF
     log_ok "Caddyfile создан"
 
-    cat > /opt/ghostwave/docker/docker-compose.yml << 'DCEOF'
-version: "3.9"
+    # ── docker-compose.yml ────────────────────────────────────────────────
+    # ВАЖНО: используем EOF без кавычек чтобы раскрыть переменные Shell
+    # Но внутри YAML ${} нужно экранировать как $${} для Docker Compose
+    cat > /opt/ghostwave/docker/docker-compose.yml << EOF
 services:
   panel:
-    image: python:3.12-slim
+    build:
+      context: /opt/ghostwave/panel
+      dockerfile: Dockerfile
+    image: ghostwave-panel:latest
     container_name: ghostwave-panel
     restart: unless-stopped
-    working_dir: /app
-    command: >
-      bash -c "pip install -q fastapi 'uvicorn[standard]' 'sqlalchemy[asyncio]'
-               asyncpg pydantic pydantic-settings bcrypt pyjwt
-               'redis[asyncio]' httpx aiogram psutil cryptography alembic &&
-               python main.py"
-    env_file: /opt/ghostwave/.env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://ghostwave:${DB_PASSWORD}@postgres:5432/ghostwave
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-    volumes:
-      - /opt/ghostwave/panel:/app
+      DATABASE_URL: "postgresql+asyncpg://ghostwave:${DB_PASSWORD}@postgres:5432/ghostwave"
+      REDIS_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      JWT_SECRET: "${JWT_SECRET}"
+      SECRET_KEY: "${SECRET_KEY}"
+      NODE_API_KEY: "${NODE_API_KEY}"
+      ADMIN_USERNAME: "${ADMIN_USER}"
+      ADMIN_PASSWORD: "${ADMIN_PASS}"
+      TELEGRAM_BOT_TOKEN: "${TG_TOKEN}"
+      TELEGRAM_ADMIN_IDS: "${TG_ADMIN_IDS}"
+      SUB_BASE_URL: "https://${PANEL_DOMAIN}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -836,7 +1014,7 @@ services:
     environment:
       POSTGRES_DB: ghostwave
       POSTGRES_USER: ghostwave
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -851,7 +1029,7 @@ services:
     image: redis:7-alpine
     container_name: ghostwave-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD}
+    command: redis-server --requirepass "${REDIS_PASSWORD}"
     networks:
       - ghostwave-net
     healthcheck:
@@ -884,23 +1062,34 @@ volumes:
 networks:
   ghostwave-net:
     driver: bridge
-DCEOF
+EOF
     log_ok "docker-compose.yml создан"
 }
 
 write_node_configs() {
     log_step "Запись конфигурации Node"
-    mkdir -p /opt/ghostwave-node
+    mkdir -p /opt/ghostwave-node/node
     mkdir -p /etc/ghostnet
 
+    # В режиме panel+node порт 443 уже занят Caddy — используем 8443
+    local effective_gn_port="${NODE_GN_PORT:-443}"
+    if [[ "$INSTALL_MODE" == "panel+node" && "$effective_gn_port" == "443" ]]; then
+        effective_gn_port="8443"
+        log_warn "Режим panel+node: порт 443 занят Caddy, GhostNet переключён на 8443"
+        NODE_GN_PORT="8443"
+        # Открываем новый порт в файрволе
+        ufw allow 8443/tcp comment "GhostNet VPN (panel+node)" >/dev/null 2>&1 || true
+    fi
+
+    # ── .env.node ─────────────────────────────────────────────────────────
     cat > /opt/ghostwave-node/.env.node << EOF
 # GhostWave Node — $(date '+%Y-%m-%d %H:%M:%S')
 NODE_ID=${NODE_ID}
-NODE_API_KEY=${NODE_PANEL_KEY}
-PANEL_URL=${NODE_PANEL_URL}
+NODE_API_KEY=${NODE_PANEL_KEY:-${NODE_API_KEY}}
+PANEL_URL=${NODE_PANEL_URL:-https://${PANEL_DOMAIN}}
 AGENT_PORT=${NODE_AGENT_PORT}
 AGENT_HOST=0.0.0.0
-GHOSTNET_PORT=${NODE_GN_PORT}
+GHOSTNET_PORT=${effective_gn_port}
 GHOSTNET_DOMAIN=${NODE_GN_DOMAIN}
 GHOSTNET_SECRET=${NODE_GN_SECRET}
 HEARTBEAT_INTERVAL=15
@@ -909,11 +1098,12 @@ EOF
     chmod 600 /opt/ghostwave-node/.env.node
     log_ok ".env.node создан (chmod 600)"
 
+    # ── GhostNet config ────────────────────────────────────────────────────
     cat > /etc/ghostnet/config.json << EOF
 {
   "secret":        "${NODE_GN_SECRET}",
   "domain":        "${NODE_GN_DOMAIN}",
-  "port":          ${NODE_GN_PORT},
+  "port":          ${effective_gn_port},
   "allowed_users": [],
   "tun_network":   "10.8.0.0/24",
   "time_window":   30,
@@ -923,12 +1113,38 @@ EOF
     chmod 600 /etc/ghostnet/config.json
     log_ok "/etc/ghostnet/config.json создан"
 
+    # ── requirements.txt для агента ───────────────────────────────────────
+    cat > /opt/ghostwave-node/node/requirements.txt << 'EOF'
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+httpx==0.27.2
+pydantic==2.9.2
+pydantic-settings==2.5.2
+psutil==6.0.0
+cryptography==43.0.1
+EOF
+
+    # ── Dockerfile Node ───────────────────────────────────────────────────
+    cat > /opt/ghostwave-node/node/Dockerfile << 'EOF'
+FROM python:3.12-slim
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends gcc iproute2 iptables && \
+    rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EOF
+    log_ok "Dockerfile для агента создан"
+
+    # ── docker-compose.yml ────────────────────────────────────────────────
     local agent_port="${NODE_AGENT_PORT:-2095}"
     cat > /opt/ghostwave-node/docker-compose.yml << EOF
-version: "3.9"
 services:
   node-agent:
-    image: python:3.12-slim
+    build:
+      context: /opt/ghostwave-node/node
+      dockerfile: Dockerfile
+    image: ghostwave-node:latest
     container_name: ghostwave-node
     restart: unless-stopped
     network_mode: host
@@ -937,13 +1153,16 @@ services:
     devices:
       - /dev/net/tun
     working_dir: /app
-    command: >
-      bash -c "pip install -q fastapi 'uvicorn[standard]' httpx pydantic
-               pydantic-settings psutil cryptography &&
-               uvicorn agent.agent:agent_app --host 0.0.0.0 --port ${agent_port}"
-    env_file: /opt/ghostwave-node/.env.node
+    command: uvicorn agent:agent_app --host 0.0.0.0 --port ${agent_port}
+    environment:
+      NODE_ID: "${NODE_ID}"
+      NODE_API_KEY: "${NODE_PANEL_KEY:-${NODE_API_KEY}}"
+      PANEL_URL: "${NODE_PANEL_URL:-https://${PANEL_DOMAIN}}"
+      AGENT_PORT: "${agent_port}"
+      GHOSTNET_PORT: "${effective_gn_port}"
+      GHOSTNET_DOMAIN: "${NODE_GN_DOMAIN}"
+      GHOSTNET_SECRET: "${NODE_GN_SECRET}"
     volumes:
-      - /opt/ghostwave-node/node:/app
       - /etc/ghostnet:/etc/ghostnet
 EOF
     log_ok "docker-compose.yml для ноды создан"
@@ -957,20 +1176,24 @@ start_panel_services() {
     log_step "Запуск сервисов Panel"
     cd /opt/ghostwave/docker
 
-    run_bg "Загрузка Docker образов" \
-        docker compose --env-file /opt/ghostwave/.env pull
+    # Сборка образа Panel (pip install происходит здесь, один раз)
+    run_bg "Сборка образа Panel (установка зависимостей)" \
+        docker compose build panel
+
+    run_bg "Загрузка образов PostgreSQL, Redis, Caddy" \
+        docker compose pull postgres redis caddy
 
     run_bg "Запуск PostgreSQL + Redis" \
-        docker compose --env-file /opt/ghostwave/.env up -d postgres redis
+        docker compose up -d postgres redis
 
     echo -ne "  ${ARROW} ${D}Ожидание готовности PostgreSQL...${NC}"
     local attempts=0
     while (( attempts < 30 )); do
         local pg_ok=0
-        docker compose --env-file /opt/ghostwave/.env \
-            exec -T postgres pg_isready -U ghostwave &>/dev/null && pg_ok=1 || true
+        docker exec ghostwave-postgres pg_isready -U ghostwave &>/dev/null \
+            && pg_ok=1 || true
         if [[ $pg_ok -eq 1 ]]; then
-            echo -e "\r  ${CHECK} PostgreSQL готов"
+            echo -e "\r  ${CHECK} PostgreSQL готов                    "
             break
         fi
         sleep 2
@@ -979,44 +1202,52 @@ start_panel_services() {
     done
 
     run_bg "Запуск Panel + Caddy" \
-        docker compose --env-file /opt/ghostwave/.env up -d panel caddy
+        docker compose up -d panel caddy
 
     echo -ne "  ${ARROW} ${D}Ожидание запуска Panel...${NC}"
     attempts=0
     while (( attempts < 40 )); do
         local panel_ok=0
-        curl -sf --max-time 2 http://localhost:3000/health &>/dev/null && panel_ok=1 || true
+        curl -sf --max-time 2 http://localhost:3000/health &>/dev/null \
+            && panel_ok=1 || true
         if [[ $panel_ok -eq 1 ]]; then
-            echo -e "\r  ${CHECK} Panel запущена"
+            echo -e "\r  ${CHECK} Panel запущена                      "
             break
         fi
         sleep 3
         (( attempts++ )) || true
         printf "\r  ${C}⠋${NC} ${D}Ожидание Panel... %ds${NC}" "$((attempts * 3))"
     done
+    if (( attempts >= 40 )); then
+        echo -e "\r  ${WARN} ${Y}Panel не ответила за 120с — проверьте логи${NC}"
+    fi
 }
 
 start_node_services() {
     log_step "Запуск Node Agent"
     cd /opt/ghostwave-node
 
-    run_bg "Загрузка Docker образа" docker compose pull
-    run_bg "Запуск Node Agent"      docker compose up -d
+    run_bg "Сборка образа Node Agent" docker compose build node-agent
+    run_bg "Запуск Node Agent"        docker compose up -d
 
     local agent_port="${NODE_AGENT_PORT:-2095}"
     echo -ne "  ${ARROW} ${D}Ожидание Node Agent...${NC}"
     local attempts=0
     while (( attempts < 30 )); do
         local agent_ok=0
-        curl -sf --max-time 2 "http://localhost:${agent_port}/health" &>/dev/null && agent_ok=1 || true
+        curl -sf --max-time 2 "http://localhost:${agent_port}/health" &>/dev/null \
+            && agent_ok=1 || true
         if [[ $agent_ok -eq 1 ]]; then
-            echo -e "\r  ${CHECK} Node Agent запущен"
+            echo -e "\r  ${CHECK} Node Agent запущен                  "
             break
         fi
         sleep 3
         (( attempts++ )) || true
         printf "\r  ${C}⠋${NC} ${D}Ожидание агента... %ds${NC}" "$((attempts * 3))"
     done
+    if (( attempts >= 30 )); then
+        echo -e "\r  ${WARN} ${Y}Node Agent не ответил — проверьте docker logs ghostwave-node${NC}"
+    fi
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1159,6 +1390,16 @@ main() {
     pause
     choose_mode
 
+    # Короткий путь для удаления и перезапуска
+    if [[ "$INSTALL_MODE" == "uninstall" ]]; then
+        uninstall
+        exit 0
+    fi
+    if [[ "$INSTALL_MODE" == "restart" ]]; then
+        do_restart
+        exit 0
+    fi
+
     # Зависимости
     separator
     if ask_yn "Установить/обновить зависимости (Docker и др.)?" "y"; then
@@ -1183,12 +1424,10 @@ main() {
         echo -e "  ${D}Нода будет подключена к только что настроенной Panel.${NC}"
         echo ""
 
-        # Для panel+node используем данные Panel напрямую
         NODE_PANEL_URL="https://${PANEL_DOMAIN}"
         NODE_PANEL_KEY="$NODE_API_KEY"
         NODE_ID="1"
 
-        # Только спрашиваем специфичные для ноды параметры
         while true; do
             ask "Домен маскировки GhostNet (например news.${PANEL_DOMAIN})"
             NODE_GN_DOMAIN="$REPLY"
@@ -1196,7 +1435,7 @@ main() {
             log_warn "Домен не может быть пустым"
         done
 
-        ask "Порт GhostNet" "443"
+        ask "Порт GhostNet (443 будет заменён на 8443, т.к. занят Caddy)" "443"
         NODE_GN_PORT="$REPLY"
 
         ask "Порт Node Agent" "2095"
