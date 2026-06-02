@@ -1815,6 +1815,7 @@ httpx
 aiogram
 psutil
 cryptography
+python-multipart
 EOF
     log_ok "requirements.txt создан"
 
