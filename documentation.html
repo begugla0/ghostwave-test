@@ -455,7 +455,7 @@ hr {
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="logo-title">GhostWave</div>
-    <div class="logo-sub">Documentation v1.0</div>
+    <div class="logo-sub">Documentation v1.1</div>
   </div>
 
   <div class="nav-section">
@@ -466,41 +466,35 @@ hr {
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-title">Установка Panel</div>
-    <a href="#panel-prepare" class="nav-link"><span class="num">04</span>Подготовка сервера</a>
-    <a href="#panel-install" class="nav-link"><span class="num">05</span>Установка Panel</a>
-    <a href="#panel-ssl"     class="nav-link"><span class="num">06</span>SSL и домен</a>
-    <a href="#panel-config"  class="nav-link"><span class="num">07</span>Конфигурация</a>
-    <a href="#panel-admin"   class="nav-link"><span class="num">08</span>Первый вход</a>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-section-title">Установка Node</div>
-    <a href="#node-install"  class="nav-link"><span class="num">09</span>Установка Node</a>
-    <a href="#node-connect"  class="nav-link"><span class="num">10</span>Подключение к Panel</a>
-    <a href="#node-verify"   class="nav-link"><span class="num">11</span>Проверка работы</a>
+    <div class="nav-section-title">Установка (install.sh)</div>
+    <a href="#installer"     class="nav-link"><span class="num">04</span>Единый установщик</a>
+    <a href="#install-panel" class="nav-link"><span class="num">05</span>Режим: Panel</a>
+    <a href="#install-node"  class="nav-link"><span class="num">06</span>Режим: Node</a>
+    <a href="#install-both"  class="nav-link"><span class="num">07</span>Режим: Panel + Node</a>
+    <a href="#installer-flow" class="nav-link"><span class="num">08</span>Шаги установщика</a>
+    <a href="#after-install" class="nav-link"><span class="num">09</span>После установки</a>
   </div>
 
   <div class="nav-section">
     <div class="nav-section-title">Управление</div>
-    <a href="#users"         class="nav-link"><span class="num">12</span>Пользователи</a>
-    <a href="#telegram"      class="nav-link"><span class="num">13</span>Telegram бот</a>
-    <a href="#subscription"  class="nav-link"><span class="num">14</span>Subscription URL</a>
-    <a href="#monitoring"    class="nav-link"><span class="num">15</span>Мониторинг</a>
+    <a href="#users"         class="nav-link"><span class="num">10</span>Пользователи</a>
+    <a href="#telegram"      class="nav-link"><span class="num">11</span>Telegram бот</a>
+    <a href="#subscription"  class="nav-link"><span class="num">12</span>Subscription URL</a>
+    <a href="#monitoring"    class="nav-link"><span class="num">13</span>Мониторинг</a>
   </div>
 
   <div class="nav-section">
     <div class="nav-section-title">Клиент</div>
-    <a href="#client-install" class="nav-link"><span class="num">16</span>Установка клиента</a>
-    <a href="#client-connect" class="nav-link"><span class="num">17</span>Подключение</a>
-    <a href="#client-apps"    class="nav-link"><span class="num">18</span>Клиенты и дорожная карта</a>
+    <a href="#client-install" class="nav-link"><span class="num">14</span>Установка клиента</a>
+    <a href="#client-connect" class="nav-link"><span class="num">15</span>Подключение</a>
+    <a href="#client-apps"    class="nav-link"><span class="num">16</span>Платформы и роадмап</a>
   </div>
 
   <div class="nav-section">
     <div class="nav-section-title">API</div>
-    <a href="#api-auth"      class="nav-link"><span class="num">19</span>Авторизация</a>
-    <a href="#api-reference" class="nav-link"><span class="num">20</span>Справочник API</a>
-    <a href="#troubleshoot"  class="nav-link"><span class="num">21</span>Устранение ошибок</a>
+    <a href="#api-auth"      class="nav-link"><span class="num">17</span>Авторизация</a>
+    <a href="#api-reference" class="nav-link"><span class="num">18</span>Справочник API</a>
+    <a href="#troubleshoot"  class="nav-link"><span class="num">19</span>Устранение ошибок</a>
   </div>
 </nav>
 
@@ -629,289 +623,219 @@ Node Agent применяет новый список → обновляет Gho
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- 04 PANEL PREPARE                            -->
+<!-- 04 UNIFIED INSTALLER                        -->
 <!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="panel-prepare">
-  <h2>04 — Подготовка сервера Panel</h2>
+<section class="doc-section" id="installer">
+  <h2>04 — Единый установщик install.sh</h2>
 
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Обновление системы</div>
-        <pre><code>apt update && apt upgrade -y
-apt install -y curl wget git ufw</code></pre>
-      </div>
+  <div class="lead">
+    Вся установка — Panel, Node или оба сразу — выполняется одним скриптом. Он сам проверяет систему, устанавливает Docker, проверяет DNS, генерирует ключи, настраивает файрвол и запускает сервисы.
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🖥️</div>
+      <div class="card-title">Режим Panel</div>
+      <div class="card-desc">Управляющий сервер: API, БД, Caddy/SSL, Telegram бот. Один на всю инфраструктуру.</div>
     </div>
-
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Настройка файрвола</div>
-        <pre><code>ufw allow 22/tcp    # SSH
-ufw allow 80/tcp    # HTTP (редирект на HTTPS)
-ufw allow 443/tcp   # HTTPS (Panel)
-ufw enable</code></pre>
-      </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Режим Node</div>
+      <div class="card-desc">VPN-сервер: GhostNet daemon + агент. Устанавливается на каждый отдельный сервер.</div>
     </div>
-
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Установка Docker</div>
-        <pre><code>curl -fsSL https://get.docker.com | sh
-systemctl enable docker
-systemctl start docker
-
-# Проверка
-docker --version
-docker compose version</code></pre>
-      </div>
+    <div class="card">
+      <div class="card-icon">🔧</div>
+      <div class="card-title">Panel + Node</div>
+      <div class="card-desc">Всё на одном сервере. Удобно для тестирования или небольших инсталляций.</div>
     </div>
+  </div>
 
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-content">
-        <div class="step-title">DNS-запись</div>
-        <p>В панели вашего DNS-провайдера добавьте A-запись:</p>
-        <pre><code>panel.yourdomain.com  →  A  →  IP_вашего_сервера</code></pre>
-        <div class="alert alert-info">
-          <span class="alert-icon">ℹ️</span>Дождитесь propagation DNS (обычно 1–5 минут). Проверить: <code>ping panel.yourdomain.com</code>
-        </div>
-      </div>
-    </div>
+  <h3>Что делает установщик автоматически</h3>
+  <table>
+    <tr><th>Шаг</th><th>Действие</th></tr>
+    <tr><td>Проверка системы</td><td>Root, ОС, RAM, диск, интернет, Python3, внешний IP</td></tr>
+    <tr><td>Зависимости</td><td>Docker 24+, Docker Compose v2, iproute2/iptables (для Node)</td></tr>
+    <tr><td>Ввод данных</td><td>Домен, логин/пароль, Telegram, порты — интерактивно с подсказками</td></tr>
+    <tr><td>Проверка DNS</td><td>dig A-запись → сверяет с IP сервера → предлагает подождать propagation</td></tr>
+    <tr><td>Проверка Telegram</td><td>Запрос к Telegram API /getMe → показывает @username бота</td></tr>
+    <tr><td>Генерация ключей</td><td>DB_PASSWORD, JWT_SECRET, SECRET_KEY, NODE_API_KEY, REDIS_PASSWORD, GhostNet secret</td></tr>
+    <tr><td>Файрвол</td><td>ufw: SSH + нужные порты; порт агента ограничивается только IP Panel</td></tr>
+    <tr><td>Конфиги</td><td>.env (600), Caddyfile, docker-compose.yml, /etc/ghostnet/config.json</td></tr>
+    <tr><td>Запуск</td><td>Docker pull → postgres/redis healthcheck → panel → caddy → node agent</td></tr>
+    <tr><td>Финальная проверка</td><td>curl /health локально и через домен, статус всех контейнеров</td></tr>
+    <tr><td>Отчёт</td><td>/root/ghostwave-install-ДАТА.txt с паролями (права 600)</td></tr>
+  </table>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <b>Требования перед запуском:</b> Ubuntu 20.04+ или Debian 11+, запуск от root, открытый доступ в интернет. DNS A-запись на домен Panel должна уже существовать — установщик её проверит.
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- 05 PANEL INSTALL                            -->
+<!-- 05 INSTALL PANEL MODE                       -->
 <!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="panel-install">
+<section class="doc-section" id="install-panel">
   <h2>05 — Установка Panel</h2>
 
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-content">
-        <div class="step-title">Клонирование репозитория</div>
-        <pre><code>git clone https://github.com/yourorg/ghostwave.git /opt/ghostwave
-cd /opt/ghostwave</code></pre>
+        <div class="step-title">Подготовьте DNS заранее</div>
+        <p>До запуска установщика создайте A-запись у DNS-провайдера:</p>
+        <pre><code>Имя:     panel.yourdomain.com
+Тип:     A
+Значение: IP_вашего_сервера
+TTL:     300</code></pre>
+        <div class="alert alert-info">
+          <span class="alert-icon">ℹ️</span>
+          Установщик сам проверит DNS и покажет, совпадает ли IP. Если нет — предложит подождать и попробовать снова. Без корректного DNS Caddy не получит SSL-сертификат.
+        </div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-content">
-        <div class="step-title">Создание .env файла</div>
-        <pre><code>cd /opt/ghostwave
-cp .env.example .env
-nano .env</code></pre>
-        <p>Заполните обязательные параметры:</p>
-        <pre><code># Пароль БД (сгенерируйте случайный)
-DB_PASSWORD=ВашСильныйПароль123!
+        <div class="step-title">Скачать и запустить установщик</div>
+        <pre><code># Скачать
+wget -O install.sh https://raw.githubusercontent.com/yourorg/ghostwave/main/install.sh
 
-# JWT и секретные ключи (генерация):
-# python3 -c "import secrets; print(secrets.token_hex(32))"
-JWT_SECRET=сгенерированный_hex_32_байта
-SECRET_KEY=сгенерированный_hex_32_байта
-NODE_API_KEY=сгенерированный_hex_32_байта
-
-# Администратор панели
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=ВашПарольАдмина!
-
-# Домен панели (без слеша)
-SUB_BASE_URL=https://panel.yourdomain.com
-
-# Telegram (заполнить позже, можно пропустить сейчас)
-TELEGRAM_BOT_TOKEN=
-TELEGRAM_ADMIN_IDS=[]</code></pre>
+# Сделать исполняемым и запустить
+chmod +x install.sh
+sudo bash install.sh</code></pre>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-content">
-        <div class="step-title">Запуск сервисов</div>
-        <pre><code>cd /opt/ghostwave/docker
-docker compose up -d
+        <div class="step-title">Выбрать режим <code>1) Panel</code></div>
+        <pre><code>  Что устанавливаем на этот сервер?
 
-# Смотрим статус
-docker compose ps
+  1) Panel   — управляющий сервер
+  2) Node    — VPN-сервер
+  3) Panel + Node — всё на одном
 
-# Логи Panel
-docker compose logs -f panel</code></pre>
-        <div class="alert alert-success">
-          <span class="alert-icon">✅</span>
-          Все сервисы должны показать статус <code>Up (healthy)</code>
-        </div>
+  Ваш выбор [1]: 1</code></pre>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-content">
-        <div class="step-title">Проверка работы</div>
-        <pre><code># Panel отвечает локально
-curl http://localhost:3000/health
+        <div class="step-title">Ввести домен → установщик проверяет DNS</div>
+        <pre><code>  › Домен панели (например panel.example.com): panel.yourdomain.com
 
-# Ожидаемый ответ:
-{"status":"ok","version":"1.0.0"}</code></pre>
+  ✔ DNS проверен: panel.yourdomain.com → 1.2.3.4 ✓</code></pre>
+        <p>Если DNS ещё не обновился — установщик предложит подождать и проверить снова, не выходя из процесса.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Настройка Telegram бота (опционально)</div>
+        <pre><code>  › Настроить Telegram бота сейчас? [Y/n]: y
+  › Токен бота (@BotFather): 7123456789:AAF...
+  ✔ Бот проверен: @ghostwave_vpn_bot
+
+  › Ваш Telegram ID: 123456789
+  ✔ Telegram ID: 123456789</code></pre>
+        <p>Токен проверяется живым запросом к Telegram API — сразу увидите имя бота.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Задать логин и пароль администратора</div>
+        <pre><code>  › Логин администратора [admin]: admin
+  › Пароль администратора (минимум 8 символов): ••••••••••••
+  › Повторите пароль: ••••••••••••
+  ✔ Пароль установлен</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <div class="step-title">Автогенерация ключей</div>
+        <pre><code>  ✔ DB_PASSWORD    (32 символа)
+  ✔ JWT_SECRET     (64 hex символа)
+  ✔ SECRET_KEY     (64 hex символа)
+  ✔ NODE_API_KEY   (64 hex символа)
+  ✔ REDIS_PASSWORD (32 символа)</code></pre>
+        <p>Все ключи генерируются через <code>secrets.token_hex(32)</code> — криптографически стойкий генератор.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <div class="step-title">Подтверждение и запуск</div>
+        <pre><code>  ══ PANEL ══
+  Директория:  /opt/ghostwave
+  Домен:       panel.yourdomain.com
+  Admin логин: admin
+  Admin пароль: adm****d
+  NODE_API_KEY: a3f2bc8e...
+
+  Всё верно? Начать установку? [Y/n]: y</code></pre>
+        <p>После подтверждения установщик сам устанавливает Docker, пишет конфиги, запускает контейнеры и проверяет их работу.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">9</div>
+      <div class="step-content">
+        <div class="step-title">Результат</div>
+        <pre><code>  ╔═══════════════════════════════════════╗
+  ║   Установка успешно завершена! ✓     ║
+  ╚═══════════════════════════════════════╝
+
+  🌐 URL панели:       https://panel.yourdomain.com
+  📖 API документация: https://panel.yourdomain.com/api/docs
+  👤 Логин:            admin
+
+  NODE_API_KEY (сохраните для установки нод):
+  a3f2bc8e1d4f9a7c2e5b8d3f6a1c4e7b...
+
+  ✔ Отчёт сохранён: /root/ghostwave-install-20250115-143022.txt</code></pre>
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          <b>Скопируйте NODE_API_KEY</b> — он понадобится при установке каждой ноды.
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- 06 SSL                                      -->
+<!-- 06 INSTALL NODE MODE                        -->
 <!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="panel-ssl">
-  <h2>06 — SSL и домен (Caddy)</h2>
-
-  <p>GhostWave использует Caddy как reverse proxy — он автоматически получает Let's Encrypt сертификат.</p>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Редактирование Caddyfile</div>
-        <pre><code>nano /opt/ghostwave/docker/Caddyfile</code></pre>
-        <pre><code># Замените panel.example.com на ваш домен
-panel.yourdomain.com {
-    reverse_proxy /api/*  ghostwave-panel:3000
-    reverse_proxy /sub/*  ghostwave-panel:3000
-    reverse_proxy /health ghostwave-panel:3000
-    reverse_proxy /*      ghostwave-panel:3000
-}</code></pre>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Перезапуск Caddy</div>
-        <pre><code>cd /opt/ghostwave/docker
-docker compose restart caddy
-
-# Проверка SSL
-curl https://panel.yourdomain.com/health</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <div class="alert alert-warn">
-    <span class="alert-icon">⚠️</span>
-    <b>Порт 80 должен быть открыт</b> — Caddy использует его для ACME challenge при получении сертификата.
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- 07 CONFIG                                   -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="panel-config">
-  <h2>07 — Конфигурация</h2>
-
-  <h3>Все параметры .env</h3>
-  <table>
-    <tr><th>Параметр</th><th>По умолчанию</th><th>Описание</th></tr>
-    <tr><td>DB_PASSWORD</td><td>—</td><td>Пароль PostgreSQL <span class="badge badge-req">обязателен</span></td></tr>
-    <tr><td>JWT_SECRET</td><td>—</td><td>Секрет для JWT токенов <span class="badge badge-req">обязателен</span></td></tr>
-    <tr><td>SECRET_KEY</td><td>—</td><td>Общий секретный ключ <span class="badge badge-req">обязателен</span></td></tr>
-    <tr><td>NODE_API_KEY</td><td>—</td><td>Ключ для авторизации нод <span class="badge badge-req">обязателен</span></td></tr>
-    <tr><td>ADMIN_USERNAME</td><td>admin</td><td>Логин администратора</td></tr>
-    <tr><td>ADMIN_PASSWORD</td><td>changeme</td><td>Пароль администратора <span class="badge badge-req">смените!</span></td></tr>
-    <tr><td>TELEGRAM_BOT_TOKEN</td><td>""</td><td>Токен от @BotFather <span class="badge badge-opt">опционально</span></td></tr>
-    <tr><td>TELEGRAM_ADMIN_IDS</td><td>[]</td><td>Ваш Telegram ID <span class="badge badge-opt">опционально</span></td></tr>
-    <tr><td>SUB_BASE_URL</td><td>—</td><td>URL панели для subscription ссылок <span class="badge badge-req">обязателен</span></td></tr>
-    <tr><td>JWT_EXPIRE_MINUTES</td><td>1440</td><td>Время жизни JWT (минуты)</td></tr>
-    <tr><td>TRAFFIC_RESET_DAY</td><td>1</td><td>День месяца для сброса трафика</td></tr>
-  </table>
-
-  <h3>Генерация секретов</h3>
-  <pre><code># Генерируем все секреты одной командой:
-python3 -c "
-import secrets
-print('JWT_SECRET=' + secrets.token_hex(32))
-print('SECRET_KEY=' + secrets.token_hex(32))
-print('NODE_API_KEY=' + secrets.token_hex(32))
-print('DB_PASSWORD=' + secrets.token_urlsafe(24))
-"</code></pre>
-</section>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- 08 FIRST LOGIN                              -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="panel-admin">
-  <h2>08 — Первый вход в панель</h2>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Открыть API документацию</div>
-        <pre><code>https://panel.yourdomain.com/api/docs</code></pre>
-        <p>Здесь доступен интерактивный Swagger UI для тестирования всех эндпоинтов.</p>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Получить JWT токен</div>
-        <pre><code>curl -X POST https://panel.yourdomain.com/api/auth/login \
-  -F "username=admin" \
-  -F "password=ВашПарольАдмина"
-
-# Ответ:
-{"access_token":"eyJ...","token_type":"bearer"}</code></pre>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Проверить авторизацию</div>
-        <pre><code>TOKEN="eyJ..."
-
-curl https://panel.yourdomain.com/api/auth/me \
-  -H "Authorization: Bearer $TOKEN"
-
-# Ответ:
-{"id":1,"username":"admin","is_superadmin":true}</code></pre>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════ -->
-<!-- 09 NODE INSTALL                             -->
-<!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="node-install">
-  <h2>09 — Установка Node (VPN-сервер)</h2>
+<section class="doc-section" id="install-node">
+  <h2>06 — Установка Node</h2>
 
   <div class="alert alert-info">
     <span class="alert-icon">ℹ️</span>
-    Выполняется на <b>каждом VPN-сервере отдельно</b>. Для каждого нового сервера — отдельный NODE_ID.
+    Выполняется на <b>каждом VPN-сервере отдельно</b>. Panel должна быть уже установлена и доступна.
   </div>
 
   <div class="steps">
     <div class="step">
       <div class="step-num">1</div>
       <div class="step-content">
-        <div class="step-title">Подготовка сервера Node</div>
-        <pre><code># Обновление
-apt update && apt upgrade -y
-apt install -y curl docker.io
-
-# Файрвол
-ufw allow 22/tcp
-ufw allow 443/tcp   # GhostNet (VPN трафик клиентов)
-ufw allow 2095/tcp  # Node Agent API (только от Panel!)
-ufw enable</code></pre>
-        <div class="alert alert-warn">
-          <span class="alert-icon">⚠️</span>
-          В идеале порт 2095 открыть <b>только для IP вашего Panel-сервера</b>:<br>
-          <code>ufw allow from PANEL_IP to any port 2095</code>
+        <div class="step-title">Подготовьте DNS для маскировки</div>
+        <p>GhostNet сервер прикидывается реальным сайтом. Для этого нужен домен, A-запись которого указывает на IP ноды:</p>
+        <pre><code>Имя:     news.yourdomain.com
+Тип:     A
+Значение: IP_ноды
+TTL:     300</code></pre>
+        <div class="alert alert-info">
+          <span class="alert-icon">ℹ️</span>
+          Установщик проверит этот домен и предупредит если IP не совпадает. Для полной маскировки домен должен указывать именно на эту ноду.
         </div>
       </div>
     </div>
@@ -919,140 +843,269 @@ ufw enable</code></pre>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-content">
-        <div class="step-title">Создать запись Node в панели</div>
-        <pre><code># Выполняется на вашем компьютере (не на сервере)
-# Сначала узнайте NODE_API_KEY из .env Panel
+        <div class="step-title">Запустить установщик, выбрать режим <code>2) Node</code></div>
+        <pre><code>sudo bash install.sh
 
-TOKEN="ваш_JWT_токен"
-
-curl -X POST https://panel.yourdomain.com/api/nodes \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "🇩🇪 Germany #1",
-    "address": "IP_нового_сервера",
-    "port": 2095,
-    "country": "DE",
-    "city": "Frankfurt",
-    "flag_emoji": "🇩🇪",
-    "ghostnet_port": 443,
-    "ghostnet_domain": "news.example.com",
-    "ghostnet_secret": "сгенерируйте_python3_secrets_token_hex32"
-  }'
-
-# Сохраните "id" из ответа — это ваш NODE_ID</code></pre>
+  Ваш выбор [1]: 2</code></pre>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-content">
-        <div class="step-title">Установка Node Agent</div>
-        <pre><code>mkdir -p /opt/ghostwave-node
-cd /opt/ghostwave-node
+        <div class="step-title">Ввести URL Panel → установщик проверяет доступность</div>
+        <pre><code>  › URL панели: https://panel.yourdomain.com
 
-# Копируем файлы node/ из репозитория
-git clone https://github.com/yourorg/ghostwave.git /tmp/gw
-cp -r /tmp/gw/node/* .
-cp /tmp/gw/docker/docker-compose.node.yml .
-cp /tmp/gw/docker/Dockerfile.node .
-
-# Создаём .env.node
-cat > .env.node << EOF
-NODE_ID=1                          # ID из предыдущего шага
-NODE_API_KEY=ключ_из_env_Panel     # NODE_API_KEY из .env Panel
-PANEL_URL=https://panel.yourdomain.com
-AGENT_PORT=2095
-GHOSTNET_PORT=443
-GHOSTNET_DOMAIN=news.example.com   # домен для маскировки
-GHOSTNET_SECRET=тот_же_что_в_API   # ghostnet_secret из создания ноды
-EOF</code></pre>
+  ✔ Панель доступна: https://panel.yourdomain.com (v1.0.0)</code></pre>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-content">
-        <div class="step-title">Запуск Node Agent</div>
-        <pre><code>docker compose -f docker-compose.node.yml up -d
+        <div class="step-title">Ввести NODE_API_KEY с Panel-сервера</div>
+        <pre><code>  # NODE_API_KEY находится на Panel-сервере:
+  cat /opt/ghostwave/.env | grep NODE_API_KEY
 
-# Проверка
-docker logs ghostwave-node -f</code></pre>
-        <p>В логах должны появиться строки:</p>
-        <pre><code>[INFO] GhostWave Node Agent starting (node_id=1)
-[INFO] Node Agent ready.
-[INFO] Heartbeat sent, 0 active users</code></pre>
+  › NODE_API_KEY с Panel-сервера: a3f2bc8e1d4f9a7c...
+  ✔ NODE_API_KEY принят</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Создание ноды в Panel (автоматически через API)</div>
+        <pre><code>  › Создать ноду в панели автоматически? [Y/n]: y
+  › Логин администратора Panel: admin
+  › Пароль администратора Panel: ••••••••
+
+  ✔ JWT токен получен
+  › Название ноды: 🇩🇪 Germany #1
+  › Страна (DE, NL, FI...): DE
+  › Город: Frankfurt
+
+  ✔ Нода создана. NODE_ID = 3</code></pre>
+        <p>Или вручную — введите NODE_ID, который вы создали заранее через API.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Домен маскировки → проверка DNS</div>
+        <pre><code>  › Домен для маскировки: news.yourdomain.com
+
+  ✔ DNS: news.yourdomain.com → 5.6.7.8 ✓</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <div class="step-title">Порты и автогенерация GhostNet secret</div>
+        <pre><code>  › Порт GhostNet [443]: 443
+  › Порт Node Agent API [2095]: 2095
+
+  ✔ GhostNet secret сгенерирован</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <div class="step-title">Установщик настраивает файрвол и запускает агент</div>
+        <pre><code>  ✔ Порт 443 (GhostNet) — открыт
+  ✔ Порт 2095 ограничен: только с IP Panel (1.2.3.4)
+
+  ✔ Node Agent запущен
+  ✔ Node Agent: OK (порт 2095)</code></pre>
+        <p>Порт агента автоматически ограничивается только IP адресом Panel-сервера — снаружи он недоступен.</p>
       </div>
     </div>
   </div>
+
+  <h3>Проверка после установки</h3>
+  <pre><code># На сервере ноды
+curl http://localhost:2095/health
+# {"status":"ok","node_id":3,"ghostnet_running":true,...}
+
+# На Panel-сервере — нода должна появиться как online
+curl https://panel.yourdomain.com/api/nodes \
+  -H "Authorization: Bearer $TOKEN"
+# [...{"id":3,"status":"online",...}]</code></pre>
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- 10 NODE CONNECT                             -->
+<!-- 07 INSTALL BOTH                             -->
 <!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="node-connect">
-  <h2>10 — Подключение Node к Panel</h2>
+<section class="doc-section" id="install-both">
+  <h2>07 — Режим Panel + Node (один сервер)</h2>
 
-  <p>Node сама инициирует подключение к Panel через heartbeat. Проверить статус:</p>
+  <p>Используется для тестирования или небольших инсталляций (1 сервер = всё). Выберите режим <code>3</code> в установщике.</p>
 
-  <pre><code>TOKEN="ваш_JWT_токен"
+  <pre><code>sudo bash install.sh
 
-# Список нод и их статус
-curl https://panel.yourdomain.com/api/nodes \
-  -H "Authorization: Bearer $TOKEN"
+  Ваш выбор [1]: 3</code></pre>
 
-# Ответ (node должна быть online):
-[
-  {
-    "id": 1,
-    "name": "🇩🇪 Germany #1",
-    "status": "online",
-    "online_users": 0,
-    "load_avg": 0.5,
-    "last_seen": "2025-01-15T12:00:00Z"
-  }
-]</code></pre>
+  <p>Установщик последовательно запросит данные для Panel (домен, Telegram, пароль) и для Node (домен маскировки, порты). Все ключи генерируются автоматически, NODE_API_KEY передаётся между компонентами без ручного копирования.</p>
 
-  <div class="alert alert-success">
-    <span class="alert-icon">✅</span>
-    Если <code>"status": "online"</code> — нода успешно подключена! Heartbeat работает каждые 15 секунд.
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    Режим <b>Panel + Node</b> на одном сервере не рекомендуется для production-использования: если сервер заблокируют, недоступны будут и панель управления, и VPN. Используйте отдельные серверы для Panel и каждой Node.
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- 11 NODE VERIFY                              -->
+<!-- 08 INSTALLER FLOW DETAIL                    -->
 <!-- ═══════════════════════════════════════════ -->
-<section class="doc-section" id="node-verify">
-  <h2>11 — Проверка работы</h2>
+<section class="doc-section" id="installer-flow">
+  <h2>08 — Детальный разбор шагов установщика</h2>
 
-  <pre><code># Статус агента (прямо на ноде)
-curl http://NODE_IP:2095/health
+  <h3>Все переменные окружения Panel</h3>
+  <table>
+    <tr><th>Параметр</th><th>Источник</th><th>Описание</th></tr>
+    <tr><td>DB_PASSWORD</td><td>Автогенерация</td><td>Пароль PostgreSQL <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>JWT_SECRET</td><td>Автогенерация</td><td>Подпись JWT токенов <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>SECRET_KEY</td><td>Автогенерация</td><td>Общий ключ приложения <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>NODE_API_KEY</td><td>Автогенерация</td><td>Ключ авторизации нод <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>REDIS_PASSWORD</td><td>Автогенерация</td><td>Пароль Redis</td></tr>
+    <tr><td>ADMIN_USERNAME</td><td>Ввод пользователя</td><td>Логин администратора</td></tr>
+    <tr><td>ADMIN_PASSWORD</td><td>Ввод пользователя</td><td>Пароль администратора</td></tr>
+    <tr><td>TELEGRAM_BOT_TOKEN</td><td>Ввод пользователя</td><td>Токен @BotFather <span class="badge badge-opt">опционально</span></td></tr>
+    <tr><td>TELEGRAM_ADMIN_IDS</td><td>Ввод пользователя</td><td>Ваш Telegram ID <span class="badge badge-opt">опционально</span></td></tr>
+    <tr><td>SUB_BASE_URL</td><td>Из домена</td><td>https://ваш-домен — для subscription ссылок</td></tr>
+    <tr><td>JWT_EXPIRE_MINUTES</td><td>Фиксировано</td><td>1440 (24 часа)</td></tr>
+  </table>
 
-# Ответ:
-{
-  "status": "ok",
-  "node_id": 1,
-  "online_users": 0,
-  "load_avg": 0.8,
-  "ghostnet_running": true
-}</code></pre>
+  <h3>Все переменные окружения Node</h3>
+  <table>
+    <tr><th>Параметр</th><th>Источник</th><th>Описание</th></tr>
+    <tr><td>NODE_ID</td><td>API Panel / ввод</td><td>ID ноды в базе Panel</td></tr>
+    <tr><td>NODE_API_KEY</td><td>С Panel-сервера</td><td>Ключ авторизации (должен совпадать)</td></tr>
+    <tr><td>PANEL_URL</td><td>Ввод пользователя</td><td>URL панели для heartbeat</td></tr>
+    <tr><td>AGENT_PORT</td><td>Ввод [2095]</td><td>Порт агента для связи с Panel</td></tr>
+    <tr><td>GHOSTNET_PORT</td><td>Ввод [443]</td><td>Порт GhostNet daemon для клиентов</td></tr>
+    <tr><td>GHOSTNET_DOMAIN</td><td>Ввод пользователя</td><td>Домен маскировки (проверяется DNS)</td></tr>
+    <tr><td>GHOSTNET_SECRET</td><td>Автогенерация</td><td>Shared secret для temporal HMAC SNI</td></tr>
+  </table>
 
-  <h3>Диагностика</h3>
-  <pre><code># Логи Node Agent
-docker logs ghostwave-node --tail 50
+  <h3>Что создаётся на диске</h3>
+  <pre><code># Panel
+/opt/ghostwave/
+├── .env                        # все переменные окружения (chmod 600)
+├── docker/
+│   ├── docker-compose.yml      # Panel + PostgreSQL + Redis + Caddy
+│   └── Caddyfile               # конфиг reverse proxy с SSL
+└── panel/                      # исходный код Panel API
 
-# Логи GhostNet daemon
-cat /var/log/ghostnet/ghostnet.log
+# Node
+/opt/ghostwave-node/
+├── .env.node                   # переменные ноды (chmod 600)
+├── docker-compose.yml          # Node Agent
+└── node/                       # исходный код агента
 
-# Проверить что порт 443 слушается
-ss -tlnp | grep :443</code></pre>
+/etc/ghostnet/
+└── config.json                 # конфиг GhostNet daemon (chmod 600)
+
+# Отчёт об установке
+/root/ghostwave-install-YYYYMMDD-HHMMSS.txt  # chmod 600</code></pre>
+
+  <h3>Ручное обновление конфига после установки</h3>
+  <pre><code># Изменить параметр и перезапустить
+nano /opt/ghostwave/.env
+cd /opt/ghostwave/docker
+docker compose restart panel
+
+# Посмотреть текущий NODE_API_KEY
+grep NODE_API_KEY /opt/ghostwave/.env</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 09 AFTER INSTALL                            -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="after-install">
+  <h2>09 — После установки: первые шаги</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Проверить что всё работает</div>
+        <pre><code># Статус всех контейнеров Panel
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+# Ожидаемый вывод:
+# ghostwave-panel    Up 2 minutes (healthy)
+# ghostwave-postgres Up 2 minutes (healthy)
+# ghostwave-redis    Up 2 minutes (healthy)
+# ghostwave-caddy    Up 2 minutes
+
+# Проверка API через HTTPS
+curl https://panel.yourdomain.com/health
+# {"status":"ok","version":"1.0.0"}</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Получить JWT токен администратора</div>
+        <pre><code>TOKEN=$(curl -sf -X POST https://panel.yourdomain.com/api/auth/login \
+  -F "username=admin" -F "password=ВашПароль" \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+
+echo "TOKEN=$TOKEN"</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Создать первого пользователя</div>
+        <pre><code>curl -X POST https://panel.yourdomain.com/api/users \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "ivan",
+    "traffic_limit": 10737418240,
+    "expires_at": "2026-12-31T23:59:59Z"
+  }'</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Выдать пользователю Subscription URL</div>
+        <pre><code># Получить sub_token пользователя
+curl https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  | python3 -c "import sys,json; u=json.load(sys.stdin); print(f'https://panel.yourdomain.com/sub/{u[\"sub_token\"]}')"
+
+# Или через Telegram бот: кнопка «🔗 Subscription URL»</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Проверить что нода онлайн</div>
+        <pre><code>curl https://panel.yourdomain.com/api/nodes \
+  -H "Authorization: Bearer $TOKEN"
+
+# Нода должна быть "status": "online"
+# Если "offline" — подождите 15 секунд (heartbeat интервал)</code></pre>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- 12 USERS                                    -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="users">
-  <h2>12 — Управление пользователями</h2>
+  <h2>10 — Управление пользователями</h2>
 
   <h3>Создание пользователя</h3>
   <pre><code>curl -X POST https://panel.yourdomain.com/api/users \
@@ -1106,7 +1159,7 @@ curl -X DELETE https://panel.yourdomain.com/api/users/1 \
 <!-- 13 TELEGRAM                                 -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="telegram">
-  <h2>13 — Telegram бот</h2>
+  <h2>11 — Telegram бот</h2>
 
   <div class="steps">
     <div class="step">
@@ -1179,7 +1232,7 @@ curl -X PATCH https://panel.yourdomain.com/api/users/1 \
 <!-- 14 SUBSCRIPTION                             -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="subscription">
-  <h2>14 — Subscription URL</h2>
+  <h2>12 — Subscription URL</h2>
 
   <p>Каждый пользователь получает уникальный URL вида:</p>
   <pre><code>https://panel.yourdomain.com/sub/TOKEN</code></pre>
@@ -1223,7 +1276,7 @@ curl -X PATCH https://panel.yourdomain.com/api/users/1 \
 <!-- 15 MONITORING                               -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="monitoring">
-  <h2>15 — Мониторинг</h2>
+  <h2>13 — Мониторинг</h2>
 
   <h3>Общая статистика</h3>
   <pre><code>curl https://panel.yourdomain.com/api/stats \
@@ -1268,7 +1321,7 @@ docker exec ghostwave-postgres pg_dump -U ghostwave ghostwave > backup.sql</code
 <!-- 16 CLIENT INSTALL                           -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="client-install">
-  <h2>16 — Установка клиента GhostWave</h2>
+  <h2>14 — Установка клиента GhostWave</h2>
 
   <div class="alert alert-info">
     <span class="alert-icon">ℹ️</span>
@@ -1304,7 +1357,7 @@ sudo python3 ghostwave-client.py</code></pre>
 <!-- 17 CLIENT CONNECT                           -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="client-connect">
-  <h2>17 — Подключение через клиент</h2>
+  <h2>15 — Подключение через клиент</h2>
 
   <div class="steps">
     <div class="step">
@@ -1338,7 +1391,7 @@ sudo python3 ghostwave-client.py</code></pre>
 <!-- 18 CLIENT APPS                              -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="client-apps">
-  <h2>18 — Поддерживаемые клиенты и дорожная карта</h2>
+  <h2>16 — Поддерживаемые клиенты и дорожная карта</h2>
 
   <div class="alert alert-danger">
     <span class="alert-icon">⛔</span>
@@ -1389,7 +1442,7 @@ sudo python3 ghostwave-client.py</code></pre>
 <!-- 19 API AUTH                                 -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="api-auth">
-  <h2>19 — Авторизация API</h2>
+  <h2>17 — Авторизация API</h2>
 
   <p>Все API эндпоинты кроме <code>/health</code> и <code>/sub/*</code> требуют JWT токен.</p>
 
@@ -1415,7 +1468,7 @@ Authorization: Bearer eyJhbGci...</code></pre>
 <!-- 20 API REFERENCE                            -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="api-reference">
-  <h2>20 — Справочник API</h2>
+  <h2>18 — Справочник API</h2>
 
   <h3>Auth</h3>
   <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/auth/login</div><div class="endpoint-desc">Получить JWT токен</div></div></div>
@@ -1449,53 +1502,113 @@ Authorization: Bearer eyJhbGci...</code></pre>
 <!-- 21 TROUBLESHOOT                             -->
 <!-- ═══════════════════════════════════════════ -->
 <section class="doc-section" id="troubleshoot">
-  <h2>21 — Устранение ошибок</h2>
+  <h2>19 — Устранение ошибок</h2>
+
+  <h3>Установщик прерывается с ошибкой</h3>
+  <pre><code># Детали последней ошибки:
+cat /tmp/gw_install_last.log
+
+# Чаще всего: нет доступа к интернету, нет прав root, или занят порт
+# Запустить повторно — установщик продолжит с того же шага:
+sudo bash install.sh</code></pre>
 
   <h3>Panel не запускается</h3>
-  <pre><code>docker compose logs panel | tail -30
+  <pre><code># Статус всех контейнеров
+docker ps -a
 
-# Частая причина: БД ещё не готова
-docker compose restart panel  # подождать 10с после postgres</code></pre>
+# Логи Panel
+docker logs ghostwave-panel --tail 50
+
+# Частая причина 1: БД ещё инициализируется
+docker compose -f /opt/ghostwave/docker/docker-compose.yml restart panel
+
+# Частая причина 2: неверный .env
+cat /opt/ghostwave/.env  # проверьте DB_PASSWORD, JWT_SECRET</code></pre>
+
+  <h3>SSL-сертификат не получен (Caddy)</h3>
+  <pre><code># Логи Caddy
+docker logs ghostwave-caddy --tail 30
+
+# Проверить что порт 80 открыт
+ufw status | grep 80
+
+# Проверить DNS вручную
+dig +short panel.yourdomain.com
+# Должен вернуть IP вашего сервера
+
+# Перезапустить Caddy после исправления DNS
+docker restart ghostwave-caddy</code></pre>
 
   <h3>Нода показывает offline</h3>
   <pre><code># 1. Проверить доступность агента с Panel-сервера
 curl http://NODE_IP:2095/health
 
-# 2. Проверить что NODE_API_KEY совпадает в обоих .env
+# 2. Убедиться что NODE_API_KEY совпадает
+grep NODE_API_KEY /opt/ghostwave/.env          # на Panel
+grep NODE_API_KEY /opt/ghostwave-node/.env.node # на Node
 
-# 3. Проверить логи агента
-docker logs ghostwave-node -f
+# 3. Логи Node Agent
+docker logs ghostwave-node --tail 50
 
-# 4. Проверить файрвол на Node (порт 2095 должен быть открыт)
-ufw status</code></pre>
+# 4. Проверить файрвол на Node
+ufw status
+
+# 5. Проверить что Panel-сервер не заблокирован на Node
+curl -sf https://panel.yourdomain.com/health</code></pre>
 
   <h3>Subscription URL возвращает 403</h3>
-  <pre><code># Пользователь заблокирован или истёк срок
-curl https://panel.yourdomain.com/sub/TOKEN/info
+  <pre><code># Проверить статус пользователя
+TOKEN="ваш_токен"
+curl https://panel.yourdomain.com/sub/SUB_TOKEN/info
 
-# Проверить статус и продлить:
+# Продлить подписку
 curl -X PATCH https://panel.yourdomain.com/api/users/ID \
   -H "Authorization: Bearer $TOKEN" \
-  -d '{"status":"active","expires_at":"2026-12-31T23:59:59Z"}'</code></pre>
+  -H "Content-Type: application/json" \
+  -d '{"status":"active","expires_at":"2027-01-01T00:00:00Z"}'
+
+# Сбросить трафик
+curl -X POST https://panel.yourdomain.com/api/users/ID/reset-traffic \
+  -H "Authorization: Bearer $TOKEN"</code></pre>
 
   <h3>Сбросить пароль администратора</h3>
-  <pre><code># Подключиться к PostgreSQL
-docker exec -it ghostwave-postgres psql -U ghostwave
+  <pre><code"># Вариант 1: через psql (если помните старый пароль — необязателен)
+docker exec -it ghostwave-postgres psql -U ghostwave -c \
+  "UPDATE admins SET hashed_password = '\$2b\$12\$...' WHERE username='admin';"
 
-# В psql:
-UPDATE admins 
-SET hashed_password = crypt('НовыйПароль', gen_salt('bf')) 
-WHERE username = 'admin';
-\q</code></pre>
+# Вариант 2: временно изменить в .env и перезапустить
+# (Panel создаст нового admin при старте если его нет)
+nano /opt/ghostwave/.env
+# ADMIN_PASSWORD=НовыйПароль
 
-  <h3>Бэкап и восстановление</h3>
+docker compose -f /opt/ghostwave/docker/docker-compose.yml restart panel</code></pre>
+
+  <h3>Добавить новую ноду к уже работающей Panel</h3>
+  <pre><code># На новом VPN-сервере — запустить тот же установщик, режим 2) Node
+sudo bash install.sh
+
+# Ввести URL существующей Panel и NODE_API_KEY:
+grep NODE_API_KEY /opt/ghostwave/.env  # скопировать с Panel-сервера</code></pre>
+
+  <h3>Просмотр отчёта установщика (пароли)</h3>
+  <pre><code>ls /root/ghostwave-install-*.txt
+cat /root/ghostwave-install-20250115-143022.txt</code></pre>
+
+  <h3>Бэкап и восстановление БД</h3>
   <pre><code># Бэкап
 docker exec ghostwave-postgres pg_dump -U ghostwave ghostwave \
-  | gzip > ghostwave_backup_$(date +%Y%m%d).sql.gz
+  | gzip > /root/ghostwave_backup_$(date +%Y%m%d).sql.gz
 
 # Восстановление
-gunzip < ghostwave_backup_20250115.sql.gz \
+gunzip < /root/ghostwave_backup_20250115.sql.gz \
   | docker exec -i ghostwave-postgres psql -U ghostwave ghostwave</code></pre>
+
+  <h3>Полный сброс и переустановка</h3>
+  <pre><code"># ВНИМАНИЕ: удаляет все данные!
+docker compose -f /opt/ghostwave/docker/docker-compose.yml down -v
+rm -rf /opt/ghostwave
+# Затем запустить установщик заново:
+sudo bash install.sh</code></pre>
 </section>
 
 </main>
