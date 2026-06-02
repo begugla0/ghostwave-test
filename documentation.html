@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhostWave — Документация</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #0a0c0f;
+  --surface: #111418;
+  --surface2: #181c22;
+  --border: #1f2530;
+  --accent: #3b82f6;
+  --accent-dim: rgba(59,130,246,0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.1);
+  --yellow: #eab308;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --code-bg: #0d1117;
+  --radius: 6px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 0 20px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.logo-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
+}
+
+.logo-sub {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.nav-section {
+  padding: 4px 0;
+}
+
+.nav-section-title {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 20px 4px;
+}
+
+.nav-link {
+  display: block;
+  padding: 7px 20px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  border-left-color: var(--accent);
+  background: var(--accent-dim);
+  padding-left: 22px;
+}
+
+.nav-link.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.nav-link .num {
+  color: var(--border);
+  margin-right: 8px;
+  font-size: 10px;
+}
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  margin-left: 260px;
+  flex: 1;
+  max-width: 900px;
+  padding: 48px 56px;
+}
+
+/* ─── SECTIONS ─── */
+.doc-section {
+  margin-bottom: 72px;
+  padding-top: 16px;
+}
+
+h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1px;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 40px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: -0.5px;
+}
+
+h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 28px 0 12px;
+  letter-spacing: 0.5px;
+}
+
+p {
+  color: #94a3b8;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+/* ─── LEAD TEXT ─── */
+.lead {
+  font-size: 14px;
+  color: #94a3b8;
+  line-height: 1.8;
+  margin-bottom: 32px;
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+/* ─── CODE BLOCKS ─── */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  overflow-x: auto;
+  margin: 16px 0;
+  position: relative;
+}
+
+pre code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #7dd3fc;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: var(--border);
+  border: none;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.15s;
+}
+
+.copy-btn:hover { background: var(--accent); color: white; }
+
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  color: #60a5fa;
+}
+
+/* ─── ALERTS ─── */
+.alert {
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  margin: 16px 0;
+  font-size: 12px;
+  border-left: 3px solid;
+  line-height: 1.6;
+}
+
+.alert-info    { background: var(--accent-dim); border-color: var(--accent);  color: #93c5fd; }
+.alert-success { background: var(--green-dim);  border-color: var(--green);   color: #86efac; }
+.alert-warn    { background: rgba(234,179,8,0.1); border-color: var(--yellow); color: #fde047; }
+.alert-danger  { background: rgba(239,68,68,0.1); border-color: var(--red);   color: #fca5a5; }
+
+.alert b { color: inherit; opacity: 1; }
+.alert-icon { margin-right: 8px; font-size: 14px; }
+
+/* ─── STEPS ─── */
+.steps { display: flex; flex-direction: column; gap: 0; }
+
+.step {
+  display: flex;
+  gap: 20px;
+  padding-bottom: 32px;
+  position: relative;
+}
+
+.step::before {
+  content: '';
+  position: absolute;
+  left: 18px; top: 38px; bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.step:last-child::before { display: none; }
+
+.step-num {
+  width: 36px; height: 36px;
+  min-width: 36px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.step-content { flex: 1; padding-top: 7px; }
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+/* ─── TABLE ─── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 12px;
+}
+
+th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(31,37,48,0.7);
+  color: #94a3b8;
+  vertical-align: top;
+}
+
+td:first-child { color: var(--text); font-weight: 500; }
+
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+/* ─── GRID CARDS ─── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  transition: border-color 0.15s;
+}
+
+.card:hover { border-color: var(--accent); }
+
+.card-icon { font-size: 22px; margin-bottom: 10px; }
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.card-desc { color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+/* ─── BADGE ─── */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-left: 6px;
+}
+.badge-new    { background: rgba(34,197,94,0.15); color: var(--green); }
+.badge-req    { background: rgba(239,68,68,0.15); color: var(--red); }
+.badge-opt    { background: rgba(100,116,139,0.2); color: var(--muted); }
+
+/* ─── API ENDPOINT ─── */
+.endpoint {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin: 10px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.method {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 3px;
+  min-width: 48px;
+  text-align: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.method-get    { background: rgba(34,197,94,0.15);  color: var(--green); }
+.method-post   { background: rgba(59,130,246,0.15); color: var(--accent); }
+.method-patch  { background: rgba(234,179,8,0.15);  color: var(--yellow); }
+.method-delete { background: rgba(239,68,68,0.15);  color: var(--red); }
+
+.endpoint-path {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.endpoint-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* ─── ARCH DIAGRAM ─── */
+.arch-diagram {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: #60a5fa;
+  line-height: 1.8;
+  margin: 16px 0;
+  overflow-x: auto;
+}
+
+/* ─── INLINE HIGHLIGHT ─── */
+.hl-green  { color: var(--green); }
+.hl-blue   { color: var(--accent); }
+.hl-yellow { color: var(--yellow); }
+.hl-red    { color: var(--red); }
+.hl-muted  { color: var(--muted); }
+
+/* ─── TOC PROGRESS ─── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0%; height: 2px;
+  background: var(--accent);
+  z-index: 999;
+  transition: width 0.1s;
+}
+
+/* ─── DIVIDER ─── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── MOBILE ─── */
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; padding: 24px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-title">GhostWave</div>
+    <div class="logo-sub">Documentation v1.0</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Обзор</div>
+    <a href="#overview"      class="nav-link"><span class="num">01</span>Что такое GhostWave</a>
+    <a href="#architecture"  class="nav-link"><span class="num">02</span>Архитектура системы</a>
+    <a href="#requirements"  class="nav-link"><span class="num">03</span>Требования</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Установка Panel</div>
+    <a href="#panel-prepare" class="nav-link"><span class="num">04</span>Подготовка сервера</a>
+    <a href="#panel-install" class="nav-link"><span class="num">05</span>Установка Panel</a>
+    <a href="#panel-ssl"     class="nav-link"><span class="num">06</span>SSL и домен</a>
+    <a href="#panel-config"  class="nav-link"><span class="num">07</span>Конфигурация</a>
+    <a href="#panel-admin"   class="nav-link"><span class="num">08</span>Первый вход</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Установка Node</div>
+    <a href="#node-install"  class="nav-link"><span class="num">09</span>Установка Node</a>
+    <a href="#node-connect"  class="nav-link"><span class="num">10</span>Подключение к Panel</a>
+    <a href="#node-verify"   class="nav-link"><span class="num">11</span>Проверка работы</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Управление</div>
+    <a href="#users"         class="nav-link"><span class="num">12</span>Пользователи</a>
+    <a href="#telegram"      class="nav-link"><span class="num">13</span>Telegram бот</a>
+    <a href="#subscription"  class="nav-link"><span class="num">14</span>Subscription URL</a>
+    <a href="#monitoring"    class="nav-link"><span class="num">15</span>Мониторинг</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">Клиент</div>
+    <a href="#client-install" class="nav-link"><span class="num">16</span>Установка клиента</a>
+    <a href="#client-connect" class="nav-link"><span class="num">17</span>Подключение</a>
+    <a href="#client-apps"    class="nav-link"><span class="num">18</span>Клиенты и дорожная карта</a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-title">API</div>
+    <a href="#api-auth"      class="nav-link"><span class="num">19</span>Авторизация</a>
+    <a href="#api-reference" class="nav-link"><span class="num">20</span>Справочник API</a>
+    <a href="#troubleshoot"  class="nav-link"><span class="num">21</span>Устранение ошибок</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 01 OVERVIEW                                 -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="overview">
+  <h1>GhostWave</h1>
+  <div class="lead">
+    GhostWave — система управления VPN-инфраструктурой на базе протокола GhostNet. Трафик полностью неотличим от обычного HTTPS: используется точный TLS-fingerprint браузера Chrome, адаптивный traffic shaping и полная эмуляция реального веб-сайта для активного зондирования.
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🖥️</div>
+      <div class="card-title">Panel</div>
+      <div class="card-desc">Центральный сервер управления. Пользователи, ноды, трафик, Telegram бот. Один на всю инфраструктуру.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚡</div>
+      <div class="card-title">Node</div>
+      <div class="card-desc">Агент на каждом VPN-сервере. Запускает GhostNet daemon, репортует трафик, получает список разрешённых пользователей.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <div class="card-title">Client</div>
+      <div class="card-desc">Кроссплатформенный клиент для Windows / Linux / macOS. Подключается через subscription URL.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🤖</div>
+      <div class="card-title">Telegram Bot</div>
+      <div class="card-desc">Управление доступом: администратор создаёт пользователей, пользователи получают подписку прямо в боте.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 02 ARCHITECTURE                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="architecture">
+  <h2>02 — Архитектура системы</h2>
+
+  <div class="arch-diagram">
+<span class="hl-muted">┌─────────────────────────────────────────────────────────┐</span>
+<span class="hl-muted">│                    УПРАВЛЯЮЩИЙ СЕРВЕР                    │</span>
+<span class="hl-muted">│                                                         │</span>
+<span class="hl-muted">│  ┌────────────┐   ┌──────────────┐   ┌───────────────┐  │</span>
+<span class="hl-muted">│  │</span> <span class="hl-blue">FastAPI</span>     <span class="hl-muted">│   │</span> <span class="hl-blue">PostgreSQL</span>    <span class="hl-muted">│   │</span> <span class="hl-blue">Redis</span>          <span class="hl-muted">│  │</span>
+<span class="hl-muted">│  │</span> Panel API   <span class="hl-muted">│   │</span> Users/Nodes   <span class="hl-muted">│   │</span> Sessions/Cache <span class="hl-muted">│  │</span>
+<span class="hl-muted">│  └─────┬──────┘   └──────────────┘   └───────────────┘  │</span>
+<span class="hl-muted">│        │ Caddy (HTTPS :443)                              │</span>
+<span class="hl-muted">└────────┼────────────────────────────────────────────────┘</span>
+         <span class="hl-muted">│</span>
+         <span class="hl-muted">├──────────────┬──────────────┐</span>
+         <span class="hl-muted">▼              ▼              ▼</span>
+<span class="hl-muted">┌──────────────┐ ┌──────────────┐ ┌──────────────┐</span>
+<span class="hl-muted">│</span> <span class="hl-green">Node Agent</span>   <span class="hl-muted">│ │</span> <span class="hl-green">Node Agent</span>   <span class="hl-muted">│ │</span> <span class="hl-green">Node Agent</span>   <span class="hl-muted">│</span>
+<span class="hl-muted">│</span> :2095 API    <span class="hl-muted">│ │</span> :2095 API    <span class="hl-muted">│ │</span> :2095 API    <span class="hl-muted">│</span>
+<span class="hl-muted">│──────────────│ │──────────────│ │──────────────│</span>
+<span class="hl-muted">│</span> <span class="hl-yellow">GhostNet</span>     <span class="hl-muted">│ │</span> <span class="hl-yellow">GhostNet</span>     <span class="hl-muted">│ │</span> <span class="hl-yellow">GhostNet</span>     <span class="hl-muted">│</span>
+<span class="hl-muted">│</span> Daemon :443  <span class="hl-muted">│ │</span> Daemon :443  <span class="hl-muted">│ │</span> Daemon :443  <span class="hl-muted">│</span>
+<span class="hl-muted">│</span> 🇩🇪 Germany   <span class="hl-muted">│ │</span> 🇳🇱 Netherlands<span class="hl-muted">│ │</span> 🇫🇮 Finland   <span class="hl-muted">│</span>
+<span class="hl-muted">└──────┬───────┘ └──────┬───────┘ └──────┬───────┘</span>
+       <span class="hl-muted">▲              ▲              ▲</span>
+       <span class="hl-muted">└──────────────┴──────────────┘</span>
+                      <span class="hl-muted">▲</span>
+             <span class="hl-muted">┌────────┴────────┐</span>
+             <span class="hl-muted">│</span>  <span class="hl-blue">GhostWave</span>       <span class="hl-muted">│</span>
+             <span class="hl-muted">│</span>  Client App     <span class="hl-muted">│</span>
+             <span class="hl-muted">│</span>  Windows/Linux  <span class="hl-muted">│</span>
+             <span class="hl-muted">│</span>  macOS/Android  <span class="hl-muted">│</span>
+             <span class="hl-muted">└─────────────────┘</span>
+  </div>
+
+  <h3>Поток heartbeat (каждые 15 секунд)</h3>
+  <div class="arch-diagram" style="font-size:11px;">
+Node Agent  ──→  POST /api/node/heartbeat  ──→  Panel
+             ←── {active_users: [uuid1, uuid2, ...]}  ←──
+Node Agent применяет новый список → обновляет GhostNet config
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 03 REQUIREMENTS                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="requirements">
+  <h2>03 — Требования</h2>
+
+  <h3>Управляющий сервер (Panel)</h3>
+  <table>
+    <tr><th>Параметр</th><th>Минимум</th><th>Рекомендуется</th></tr>
+    <tr><td>ОС</td><td>Ubuntu 20.04+</td><td>Ubuntu 22.04 LTS</td></tr>
+    <tr><td>CPU</td><td>1 vCPU</td><td>2 vCPU</td></tr>
+    <tr><td>RAM</td><td>1 GB</td><td>2 GB</td></tr>
+    <tr><td>Диск</td><td>10 GB</td><td>20 GB SSD</td></tr>
+    <tr><td>Порты</td><td>80, 443, 3000</td><td>—</td></tr>
+    <tr><td>Домен</td><td>Обязателен</td><td>С A-записью на IP</td></tr>
+  </table>
+
+  <h3>VPN-сервер (Node)</h3>
+  <table>
+    <tr><th>Параметр</th><th>Минимум</th><th>Рекомендуется</th></tr>
+    <tr><td>ОС</td><td>Ubuntu 20.04+</td><td>Ubuntu 22.04 LTS</td></tr>
+    <tr><td>CPU</td><td>1 vCPU</td><td>2 vCPU</td></tr>
+    <tr><td>RAM</td><td>512 MB</td><td>1 GB</td></tr>
+    <tr><td>Трафик</td><td>1 TB/мес</td><td>Без лимита</td></tr>
+    <tr><td>Порты</td><td>443, 2095</td><td>—</td></tr>
+    <tr><td>Ядро Linux</td><td>5.4+</td><td>6.x (TUN поддержка)</td></tr>
+  </table>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <b>Важно:</b> Panel и Node должны быть на разных серверах. Panel — в любой локации (не обязательно вне РФ). Node — за рубежом.
+  </div>
+
+  <h3>Программное обеспечение</h3>
+  <table>
+    <tr><th>ПО</th><th>Версия</th><th>Где нужно</th></tr>
+    <tr><td>Docker</td><td>24.x+</td><td>Panel + Node</td></tr>
+    <tr><td>Docker Compose</td><td>v2.x</td><td>Panel + Node</td></tr>
+    <tr><td>Python</td><td>3.10+ (для клиента)</td><td>Клиент</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 04 PANEL PREPARE                            -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="panel-prepare">
+  <h2>04 — Подготовка сервера Panel</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Обновление системы</div>
+        <pre><code>apt update && apt upgrade -y
+apt install -y curl wget git ufw</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Настройка файрвола</div>
+        <pre><code>ufw allow 22/tcp    # SSH
+ufw allow 80/tcp    # HTTP (редирект на HTTPS)
+ufw allow 443/tcp   # HTTPS (Panel)
+ufw enable</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Установка Docker</div>
+        <pre><code>curl -fsSL https://get.docker.com | sh
+systemctl enable docker
+systemctl start docker
+
+# Проверка
+docker --version
+docker compose version</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">DNS-запись</div>
+        <p>В панели вашего DNS-провайдера добавьте A-запись:</p>
+        <pre><code>panel.yourdomain.com  →  A  →  IP_вашего_сервера</code></pre>
+        <div class="alert alert-info">
+          <span class="alert-icon">ℹ️</span>Дождитесь propagation DNS (обычно 1–5 минут). Проверить: <code>ping panel.yourdomain.com</code>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 05 PANEL INSTALL                            -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="panel-install">
+  <h2>05 — Установка Panel</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Клонирование репозитория</div>
+        <pre><code>git clone https://github.com/yourorg/ghostwave.git /opt/ghostwave
+cd /opt/ghostwave</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Создание .env файла</div>
+        <pre><code>cd /opt/ghostwave
+cp .env.example .env
+nano .env</code></pre>
+        <p>Заполните обязательные параметры:</p>
+        <pre><code># Пароль БД (сгенерируйте случайный)
+DB_PASSWORD=ВашСильныйПароль123!
+
+# JWT и секретные ключи (генерация):
+# python3 -c "import secrets; print(secrets.token_hex(32))"
+JWT_SECRET=сгенерированный_hex_32_байта
+SECRET_KEY=сгенерированный_hex_32_байта
+NODE_API_KEY=сгенерированный_hex_32_байта
+
+# Администратор панели
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=ВашПарольАдмина!
+
+# Домен панели (без слеша)
+SUB_BASE_URL=https://panel.yourdomain.com
+
+# Telegram (заполнить позже, можно пропустить сейчас)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_ADMIN_IDS=[]</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Запуск сервисов</div>
+        <pre><code>cd /opt/ghostwave/docker
+docker compose up -d
+
+# Смотрим статус
+docker compose ps
+
+# Логи Panel
+docker compose logs -f panel</code></pre>
+        <div class="alert alert-success">
+          <span class="alert-icon">✅</span>
+          Все сервисы должны показать статус <code>Up (healthy)</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Проверка работы</div>
+        <pre><code># Panel отвечает локально
+curl http://localhost:3000/health
+
+# Ожидаемый ответ:
+{"status":"ok","version":"1.0.0"}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 06 SSL                                      -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="panel-ssl">
+  <h2>06 — SSL и домен (Caddy)</h2>
+
+  <p>GhostWave использует Caddy как reverse proxy — он автоматически получает Let's Encrypt сертификат.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Редактирование Caddyfile</div>
+        <pre><code>nano /opt/ghostwave/docker/Caddyfile</code></pre>
+        <pre><code># Замените panel.example.com на ваш домен
+panel.yourdomain.com {
+    reverse_proxy /api/*  ghostwave-panel:3000
+    reverse_proxy /sub/*  ghostwave-panel:3000
+    reverse_proxy /health ghostwave-panel:3000
+    reverse_proxy /*      ghostwave-panel:3000
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Перезапуск Caddy</div>
+        <pre><code>cd /opt/ghostwave/docker
+docker compose restart caddy
+
+# Проверка SSL
+curl https://panel.yourdomain.com/health</code></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <b>Порт 80 должен быть открыт</b> — Caddy использует его для ACME challenge при получении сертификата.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 07 CONFIG                                   -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="panel-config">
+  <h2>07 — Конфигурация</h2>
+
+  <h3>Все параметры .env</h3>
+  <table>
+    <tr><th>Параметр</th><th>По умолчанию</th><th>Описание</th></tr>
+    <tr><td>DB_PASSWORD</td><td>—</td><td>Пароль PostgreSQL <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>JWT_SECRET</td><td>—</td><td>Секрет для JWT токенов <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>SECRET_KEY</td><td>—</td><td>Общий секретный ключ <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>NODE_API_KEY</td><td>—</td><td>Ключ для авторизации нод <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>ADMIN_USERNAME</td><td>admin</td><td>Логин администратора</td></tr>
+    <tr><td>ADMIN_PASSWORD</td><td>changeme</td><td>Пароль администратора <span class="badge badge-req">смените!</span></td></tr>
+    <tr><td>TELEGRAM_BOT_TOKEN</td><td>""</td><td>Токен от @BotFather <span class="badge badge-opt">опционально</span></td></tr>
+    <tr><td>TELEGRAM_ADMIN_IDS</td><td>[]</td><td>Ваш Telegram ID <span class="badge badge-opt">опционально</span></td></tr>
+    <tr><td>SUB_BASE_URL</td><td>—</td><td>URL панели для subscription ссылок <span class="badge badge-req">обязателен</span></td></tr>
+    <tr><td>JWT_EXPIRE_MINUTES</td><td>1440</td><td>Время жизни JWT (минуты)</td></tr>
+    <tr><td>TRAFFIC_RESET_DAY</td><td>1</td><td>День месяца для сброса трафика</td></tr>
+  </table>
+
+  <h3>Генерация секретов</h3>
+  <pre><code># Генерируем все секреты одной командой:
+python3 -c "
+import secrets
+print('JWT_SECRET=' + secrets.token_hex(32))
+print('SECRET_KEY=' + secrets.token_hex(32))
+print('NODE_API_KEY=' + secrets.token_hex(32))
+print('DB_PASSWORD=' + secrets.token_urlsafe(24))
+"</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 08 FIRST LOGIN                              -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="panel-admin">
+  <h2>08 — Первый вход в панель</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Открыть API документацию</div>
+        <pre><code>https://panel.yourdomain.com/api/docs</code></pre>
+        <p>Здесь доступен интерактивный Swagger UI для тестирования всех эндпоинтов.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Получить JWT токен</div>
+        <pre><code>curl -X POST https://panel.yourdomain.com/api/auth/login \
+  -F "username=admin" \
+  -F "password=ВашПарольАдмина"
+
+# Ответ:
+{"access_token":"eyJ...","token_type":"bearer"}</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Проверить авторизацию</div>
+        <pre><code>TOKEN="eyJ..."
+
+curl https://panel.yourdomain.com/api/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+
+# Ответ:
+{"id":1,"username":"admin","is_superadmin":true}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 09 NODE INSTALL                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="node-install">
+  <h2>09 — Установка Node (VPN-сервер)</h2>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    Выполняется на <b>каждом VPN-сервере отдельно</b>. Для каждого нового сервера — отдельный NODE_ID.
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Подготовка сервера Node</div>
+        <pre><code># Обновление
+apt update && apt upgrade -y
+apt install -y curl docker.io
+
+# Файрвол
+ufw allow 22/tcp
+ufw allow 443/tcp   # GhostNet (VPN трафик клиентов)
+ufw allow 2095/tcp  # Node Agent API (только от Panel!)
+ufw enable</code></pre>
+        <div class="alert alert-warn">
+          <span class="alert-icon">⚠️</span>
+          В идеале порт 2095 открыть <b>только для IP вашего Panel-сервера</b>:<br>
+          <code>ufw allow from PANEL_IP to any port 2095</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Создать запись Node в панели</div>
+        <pre><code># Выполняется на вашем компьютере (не на сервере)
+# Сначала узнайте NODE_API_KEY из .env Panel
+
+TOKEN="ваш_JWT_токен"
+
+curl -X POST https://panel.yourdomain.com/api/nodes \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "🇩🇪 Germany #1",
+    "address": "IP_нового_сервера",
+    "port": 2095,
+    "country": "DE",
+    "city": "Frankfurt",
+    "flag_emoji": "🇩🇪",
+    "ghostnet_port": 443,
+    "ghostnet_domain": "news.example.com",
+    "ghostnet_secret": "сгенерируйте_python3_secrets_token_hex32"
+  }'
+
+# Сохраните "id" из ответа — это ваш NODE_ID</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Установка Node Agent</div>
+        <pre><code>mkdir -p /opt/ghostwave-node
+cd /opt/ghostwave-node
+
+# Копируем файлы node/ из репозитория
+git clone https://github.com/yourorg/ghostwave.git /tmp/gw
+cp -r /tmp/gw/node/* .
+cp /tmp/gw/docker/docker-compose.node.yml .
+cp /tmp/gw/docker/Dockerfile.node .
+
+# Создаём .env.node
+cat > .env.node << EOF
+NODE_ID=1                          # ID из предыдущего шага
+NODE_API_KEY=ключ_из_env_Panel     # NODE_API_KEY из .env Panel
+PANEL_URL=https://panel.yourdomain.com
+AGENT_PORT=2095
+GHOSTNET_PORT=443
+GHOSTNET_DOMAIN=news.example.com   # домен для маскировки
+GHOSTNET_SECRET=тот_же_что_в_API   # ghostnet_secret из создания ноды
+EOF</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Запуск Node Agent</div>
+        <pre><code>docker compose -f docker-compose.node.yml up -d
+
+# Проверка
+docker logs ghostwave-node -f</code></pre>
+        <p>В логах должны появиться строки:</p>
+        <pre><code>[INFO] GhostWave Node Agent starting (node_id=1)
+[INFO] Node Agent ready.
+[INFO] Heartbeat sent, 0 active users</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 10 NODE CONNECT                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="node-connect">
+  <h2>10 — Подключение Node к Panel</h2>
+
+  <p>Node сама инициирует подключение к Panel через heartbeat. Проверить статус:</p>
+
+  <pre><code>TOKEN="ваш_JWT_токен"
+
+# Список нод и их статус
+curl https://panel.yourdomain.com/api/nodes \
+  -H "Authorization: Bearer $TOKEN"
+
+# Ответ (node должна быть online):
+[
+  {
+    "id": 1,
+    "name": "🇩🇪 Germany #1",
+    "status": "online",
+    "online_users": 0,
+    "load_avg": 0.5,
+    "last_seen": "2025-01-15T12:00:00Z"
+  }
+]</code></pre>
+
+  <div class="alert alert-success">
+    <span class="alert-icon">✅</span>
+    Если <code>"status": "online"</code> — нода успешно подключена! Heartbeat работает каждые 15 секунд.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 11 NODE VERIFY                              -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="node-verify">
+  <h2>11 — Проверка работы</h2>
+
+  <pre><code># Статус агента (прямо на ноде)
+curl http://NODE_IP:2095/health
+
+# Ответ:
+{
+  "status": "ok",
+  "node_id": 1,
+  "online_users": 0,
+  "load_avg": 0.8,
+  "ghostnet_running": true
+}</code></pre>
+
+  <h3>Диагностика</h3>
+  <pre><code># Логи Node Agent
+docker logs ghostwave-node --tail 50
+
+# Логи GhostNet daemon
+cat /var/log/ghostnet/ghostnet.log
+
+# Проверить что порт 443 слушается
+ss -tlnp | grep :443</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 12 USERS                                    -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="users">
+  <h2>12 — Управление пользователями</h2>
+
+  <h3>Создание пользователя</h3>
+  <pre><code>curl -X POST https://panel.yourdomain.com/api/users \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "ivan",
+    "traffic_limit": 10737418240,
+    "expires_at": "2025-12-31T23:59:59Z",
+    "note": "Иван Иванов",
+    "node_ids": [1, 2]
+  }'</code></pre>
+
+  <p>Параметры:</p>
+  <table>
+    <tr><th>Поле</th><th>Тип</th><th>Описание</th></tr>
+    <tr><td>username</td><td>string</td><td>Латиница, цифры, _ - . (уникальный)</td></tr>
+    <tr><td>traffic_limit</td><td>int</td><td>Байты. <code>0</code> = безлимит. 10 ГБ = 10737418240</td></tr>
+    <tr><td>expires_at</td><td>ISO datetime</td><td>Дата окончания. null = бессрочно</td></tr>
+    <tr><td>node_ids</td><td>array</td><td>ID разрешённых нод. [] = все ноды</td></tr>
+    <tr><td>telegram_id</td><td>int</td><td>Telegram ID для привязки к боту</td></tr>
+  </table>
+
+  <h3>Управление пользователем</h3>
+  <pre><code># Просмотр
+curl https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN"
+
+# Сброс трафика
+curl -X POST https://panel.yourdomain.com/api/users/1/reset-traffic \
+  -H "Authorization: Bearer $TOKEN"
+
+# Блокировка
+curl -X PATCH https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "disabled"}'
+
+# Увеличить лимит
+curl -X PATCH https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"traffic_limit": 21474836480}'
+
+# Удаление
+curl -X DELETE https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN"</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 13 TELEGRAM                                 -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="telegram">
+  <h2>13 — Telegram бот</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Создание бота через @BotFather</div>
+        <pre><code># В Telegram:
+1. Написать @BotFather
+2. /newbot
+3. Придумать имя: GhostWave VPN
+4. Придумать username: ghostwave_vpn_bot
+5. Скопировать токен: 1234567890:AAF...</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Узнать ваш Telegram ID</div>
+        <pre><code># Написать @userinfobot
+# Он ответит вашим ID, например: 123456789</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Прописать в .env и перезапустить</div>
+        <pre><code>nano /opt/ghostwave/.env
+
+# Добавить/изменить:
+TELEGRAM_BOT_TOKEN=1234567890:AAF...
+TELEGRAM_ADMIN_IDS=[123456789]
+
+# Перезапуск
+cd /opt/ghostwave/docker
+docker compose restart panel</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Привязка Telegram к пользователю</div>
+        <pre><code># Обновить пользователя, добавив telegram_id
+curl -X PATCH https://panel.yourdomain.com/api/users/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"telegram_id": 987654321}'</code></pre>
+        <p>После этого пользователь может написать боту и получит доступ к своей подписке.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Команды бота</h3>
+  <table>
+    <tr><th>Команда / Кнопка</th><th>Кто может</th><th>Описание</th></tr>
+    <tr><td>/start</td><td>Все</td><td>Главное меню</td></tr>
+    <tr><td>📊 Мой статус</td><td>Пользователи</td><td>Трафик, срок, статус</td></tr>
+    <tr><td>🔗 Subscription URL</td><td>Пользователи</td><td>Ссылка для подключения</td></tr>
+    <tr><td>📱 Форматы конфигов</td><td>Пользователи</td><td>JSON / URI — для GhostWave Client</td></tr>
+    <tr><td>👤 Создать пользователя</td><td>Администраторы</td><td>Через FSM: имя → трафик → срок</td></tr>
+    <tr><td>📋 Список пользователей</td><td>Администраторы</td><td>20 последних пользователей</td></tr>
+    <tr><td>🖥️ Статус нод</td><td>Администраторы</td><td>Онлайн/оффлайн, загрузка</td></tr>
+    <tr><td>📈 Статистика</td><td>Администраторы</td><td>Общие цифры по системе</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 14 SUBSCRIPTION                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="subscription">
+  <h2>14 — Subscription URL</h2>
+
+  <p>Каждый пользователь получает уникальный URL вида:</p>
+  <pre><code>https://panel.yourdomain.com/sub/TOKEN</code></pre>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">⛔</span>
+    <b>Важно:</b> GhostNet — полностью собственный протокол. Он <b>несовместим</b> с v2rayN, NekoBox, Clash, sing-box и другими стандартными клиентами. Эти приложения знают только встроенные протоколы (VLESS, VMess, Trojan, Shadowsocks и др.) и не умеют работать с произвольным кастомным протоколом. Для подключения используйте только <b>GhostWave Client</b>.
+  </div>
+
+  <h3>Форматы конфигурации</h3>
+  <table>
+    <tr><th>URL</th><th>Формат</th><th>Для</th></tr>
+    <tr>
+      <td><code>/sub/TOKEN?fmt=json</code></td>
+      <td>JSON (нативный)</td>
+      <td><b>GhostWave Client</b> — единственный поддерживаемый клиент</td>
+    </tr>
+    <tr>
+      <td><code>/sub/TOKEN?fmt=uri</code></td>
+      <td>ghostnet://base64</td>
+      <td><b>GhostWave Client</b> — импорт по URI</td>
+    </tr>
+    <tr>
+      <td><code>/sub/TOKEN/info</code></td>
+      <td>JSON</td>
+      <td>Публичная информация о подписке (без секретов, для любого HTTP-клиента)</td>
+    </tr>
+  </table>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    Форматы <code>?fmt=clash</code> и <code>?fmt=singbox</code> в коде панели существуют как <b>заготовки на будущее</b> — для использования после того, как будут написаны форки этих клиентов с поддержкой GhostNet.
+  </div>
+
+  <h3>Заголовок Subscription-Userinfo</h3>
+  <p>Все ответы содержат стандартный заголовок для совместимых клиентов:</p>
+  <pre><code>Subscription-Userinfo: upload=1073741824; download=5368709120; total=10737418240; expire=1735689599</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 15 MONITORING                               -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="monitoring">
+  <h2>15 — Мониторинг</h2>
+
+  <h3>Общая статистика</h3>
+  <pre><code>curl https://panel.yourdomain.com/api/stats \
+  -H "Authorization: Bearer $TOKEN"
+
+# Ответ:
+{
+  "total_users":   150,
+  "active_users":  120,
+  "expired_users": 20,
+  "limited_users": 10,
+  "total_nodes":   3,
+  "online_nodes":  3,
+  "total_traffic": 107374182400
+}</code></pre>
+
+  <h3>Автоматические задачи</h3>
+  <table>
+    <tr><th>Задача</th><th>Интервал</th><th>Описание</th></tr>
+    <tr><td>Sync статусов</td><td>30 сек</td><td>Помечает expired пользователей</td></tr>
+    <tr><td>Mark offline nodes</td><td>30 сек</td><td>Нода без heartbeat 60с → offline</td></tr>
+    <tr><td>Node heartbeat</td><td>15 сек</td><td>Node → Panel: статистика + UUID</td></tr>
+    <tr><td>Traffic report</td><td>60 сек</td><td>Node → Panel: накопленный трафик</td></tr>
+  </table>
+
+  <h3>Полезные команды</h3>
+  <pre><code># Логи Panel в реальном времени
+docker logs ghostwave-panel -f
+
+# Статистика контейнеров
+docker stats
+
+# Перезапуск всего
+cd /opt/ghostwave/docker
+docker compose restart
+
+# Бэкап БД
+docker exec ghostwave-postgres pg_dump -U ghostwave ghostwave > backup.sql</code></pre>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 16 CLIENT INSTALL                           -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="client-install">
+  <h2>16 — Установка клиента GhostWave</h2>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    GhostWave Client — кроссплатформенный GUI клиент на Python. Работает на Windows, Linux, macOS без дополнительных зависимостей кроме Python 3.10+.
+  </div>
+
+  <h3>Windows</h3>
+  <pre><code># Скачать Python 3.12 с python.org (добавить в PATH при установке)
+# Затем:
+
+pip install cryptography httpx
+
+# Запуск клиента:
+python ghostwave-client.py</code></pre>
+
+  <h3>Linux / macOS</h3>
+  <pre><code>sudo apt install python3 python3-pip python3-tk  # Ubuntu/Debian
+# или
+brew install python-tk  # macOS
+
+pip3 install cryptography httpx
+
+# Запуск (нужен sudo для TUN интерфейса):
+sudo python3 ghostwave-client.py</code></pre>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    На Linux/macOS клиент требует <b>sudo</b> для создания TUN-интерфейса и настройки маршрутов. На Windows — запуск от Администратора.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 17 CLIENT CONNECT                           -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="client-connect">
+  <h2>17 — Подключение через клиент</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Получить Subscription URL</div>
+        <p>В Telegram боте нажмите «🔗 Subscription URL» или получите URL у администратора:</p>
+        <pre><code>https://panel.yourdomain.com/sub/ваш_токен</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Вставить URL в клиент</div>
+        <p>Запустите <code>ghostwave-client.py</code> → вкладка «Настройки» → вставьте URL → «Сохранить и обновить».</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Выбрать ноду и подключиться</div>
+        <p>Во вкладке «Подключение» выберите сервер из списка и нажмите «Подключить».</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 18 CLIENT APPS                              -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="client-apps">
+  <h2>18 — Поддерживаемые клиенты и дорожная карта</h2>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">⛔</span>
+    <b>GhostNet — полностью собственный протокол.</b> Стандартные клиенты (v2rayN, NekoBox, Clash, sing-box, Hiddify и др.) <b>не могут</b> с ним работать — они поддерживают только встроенные протоколы (VLESS, VMess, Trojan, Shadowsocks, WireGuard, Hysteria2). Никакого плагина для них не существует.
+  </div>
+
+  <h3>Сейчас поддерживается</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">🖥️</div>
+      <div class="card-title">GhostWave Client</div>
+      <div class="card-desc"><b>Windows / Linux / macOS</b><br>Python 3.10+ + tkinter GUI.<br>Единственный рабочий клиент на данный момент.</div>
+    </div>
+  </div>
+
+  <h3>Дорожная карта клиентов</h3>
+  <table>
+    <tr><th>Платформа</th><th>Статус</th><th>Что нужно</th></tr>
+    <tr>
+      <td>Windows / Linux / macOS</td>
+      <td><span class="hl-green">✅ Готово</span></td>
+      <td>Python + tkinter (текущий клиент)</td>
+    </tr>
+    <tr>
+      <td>Android</td>
+      <td><span class="hl-yellow">🚧 В планах</span></td>
+      <td>Нативное приложение на Kotlin, Android VpnService API</td>
+    </tr>
+    <tr>
+      <td>iOS</td>
+      <td><span class="hl-yellow">🚧 В планах</span></td>
+      <td>Нативное приложение на Swift, NetworkExtension API</td>
+    </tr>
+    <tr>
+      <td>Форк NekoBox/sing-box</td>
+      <td><span class="hl-muted">💡 Идея</span></td>
+      <td>Добавить GhostNet как новый тип в исходный код — большой объём работы</td>
+    </tr>
+  </table>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    Это <b>обратная сторона собственного протокола</b>: полная защита от DPI требует написания клиентов с нуля под каждую платформу. Готовые решения (Xray, sing-box) могут использоваться большинством существующих приложений именно потому, что реализуют стандартные протоколы.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 19 API AUTH                                 -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="api-auth">
+  <h2>19 — Авторизация API</h2>
+
+  <p>Все API эндпоинты кроме <code>/health</code> и <code>/sub/*</code> требуют JWT токен.</p>
+
+  <pre><code># Получение токена
+POST /api/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=ВашПароль
+
+# Ответ:
+{"access_token": "eyJhbGci...", "token_type": "bearer"}
+
+# Использование:
+Authorization: Bearer eyJhbGci...</code></pre>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    Токен действует <b>24 часа</b> по умолчанию (настраивается через <code>JWT_EXPIRE_MINUTES</code>).
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 20 API REFERENCE                            -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="api-reference">
+  <h2>20 — Справочник API</h2>
+
+  <h3>Auth</h3>
+  <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/auth/login</div><div class="endpoint-desc">Получить JWT токен</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/auth/me</div><div class="endpoint-desc">Информация о текущем администраторе</div></div></div>
+
+  <h3>Users</h3>
+  <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/users</div><div class="endpoint-desc">Создать пользователя</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/users?offset=0&limit=50&status=active&search=ivan</div><div class="endpoint-desc">Список пользователей с фильтрацией</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/users/{id}</div><div class="endpoint-desc">Информация о пользователе</div></div></div>
+  <div class="endpoint"><div class="method method-patch">PATCH</div><div><div class="endpoint-path">/api/users/{id}</div><div class="endpoint-desc">Обновить (статус, лимит, срок, ноды)</div></div></div>
+  <div class="endpoint"><div class="method method-delete">DELETE</div><div><div class="endpoint-path">/api/users/{id}</div><div class="endpoint-desc">Удалить пользователя</div></div></div>
+  <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/users/{id}/reset-traffic</div><div class="endpoint-desc">Сбросить счётчик трафика</div></div></div>
+  <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/users/{id}/revoke-sub</div><div class="endpoint-desc">Перегенерировать subscription token</div></div></div>
+
+  <h3>Nodes</h3>
+  <div class="endpoint"><div class="method method-post">POST</div><div><div class="endpoint-path">/api/nodes</div><div class="endpoint-desc">Добавить ноду</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/nodes</div><div class="endpoint-desc">Список всех нод с их статусом</div></div></div>
+  <div class="endpoint"><div class="method method-patch">PATCH</div><div><div class="endpoint-path">/api/nodes/{id}</div><div class="endpoint-desc">Обновить параметры ноды</div></div></div>
+  <div class="endpoint"><div class="method method-delete">DELETE</div><div><div class="endpoint-path">/api/nodes/{id}</div><div class="endpoint-desc">Удалить ноду</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/nodes/{id}/users</div><div class="endpoint-desc">Список разрешённых UUID для ноды</div></div></div>
+
+  <h3>Subscription</h3>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/sub/{token}?fmt=json|uri</div><div class="endpoint-desc">Конфигурация для GhostWave Client (json — нативный, uri — компактный)</div></div></div>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/sub/{token}/info</div><div class="endpoint-desc">Публичная информация о подписке</div></div></div>
+
+  <h3>Stats</h3>
+  <div class="endpoint"><div class="method method-get">GET</div><div><div class="endpoint-path">/api/stats</div><div class="endpoint-desc">Системная статистика</div></div></div>
+</section>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- 21 TROUBLESHOOT                             -->
+<!-- ═══════════════════════════════════════════ -->
+<section class="doc-section" id="troubleshoot">
+  <h2>21 — Устранение ошибок</h2>
+
+  <h3>Panel не запускается</h3>
+  <pre><code>docker compose logs panel | tail -30
+
+# Частая причина: БД ещё не готова
+docker compose restart panel  # подождать 10с после postgres</code></pre>
+
+  <h3>Нода показывает offline</h3>
+  <pre><code># 1. Проверить доступность агента с Panel-сервера
+curl http://NODE_IP:2095/health
+
+# 2. Проверить что NODE_API_KEY совпадает в обоих .env
+
+# 3. Проверить логи агента
+docker logs ghostwave-node -f
+
+# 4. Проверить файрвол на Node (порт 2095 должен быть открыт)
+ufw status</code></pre>
+
+  <h3>Subscription URL возвращает 403</h3>
+  <pre><code># Пользователь заблокирован или истёк срок
+curl https://panel.yourdomain.com/sub/TOKEN/info
+
+# Проверить статус и продлить:
+curl -X PATCH https://panel.yourdomain.com/api/users/ID \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"status":"active","expires_at":"2026-12-31T23:59:59Z"}'</code></pre>
+
+  <h3>Сбросить пароль администратора</h3>
+  <pre><code># Подключиться к PostgreSQL
+docker exec -it ghostwave-postgres psql -U ghostwave
+
+# В psql:
+UPDATE admins 
+SET hashed_password = crypt('НовыйПароль', gen_salt('bf')) 
+WHERE username = 'admin';
+\q</code></pre>
+
+  <h3>Бэкап и восстановление</h3>
+  <pre><code># Бэкап
+docker exec ghostwave-postgres pg_dump -U ghostwave ghostwave \
+  | gzip > ghostwave_backup_$(date +%Y%m%d).sql.gz
+
+# Восстановление
+gunzip < ghostwave_backup_20250115.sql.gz \
+  | docker exec -i ghostwave-postgres psql -U ghostwave ghostwave</code></pre>
+</section>
+
+</main>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const el = document.getElementById('progress');
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  el.style.width = pct + '%';
+});
+
+// Highlight active nav link
+const sections = document.querySelectorAll('.doc-section');
+const navLinks = document.querySelectorAll('.nav-link');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = entry.target.id;
+      const active = document.querySelector(`.nav-link[href="#${id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.2 });
+
+sections.forEach(s => observer.observe(s));
+
+// Copy buttons
+document.querySelectorAll('pre').forEach(pre => {
+  const btn = document.createElement('button');
+  btn.className = 'copy-btn';
+  btn.textContent = 'COPY';
+  btn.onclick = () => {
+    navigator.clipboard.writeText(pre.querySelector('code')?.textContent || pre.textContent);
+    btn.textContent = 'COPIED!';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'COPY'; btn.style.color = ''; }, 1500);
+  };
+  pre.style.position = 'relative';
+  pre.appendChild(btn);
+});
+</script>
+</body>
+</html>
