@@ -348,16 +348,28 @@ setup_firewall() {
 
     if [[ "$INSTALL_MODE" == "panel" || "$INSTALL_MODE" == "panel+node" ]]; then
         ufw allow 80/tcp  comment "HTTP (Caddy ACME)"  >/dev/null 2>&1 || true
-        ufw allow 443/tcp comment "HTTPS Panel"        >/dev/null 2>&1 || true
-        log_ok "Порты 80, 443 (Panel HTTPS) — открыты"
+        ufw allow 443/tcp comment "HTTPS Panel+Caddy"  >/dev/null 2>&1 || true
+        log_ok "Порты 80, 443 (Panel HTTPS/Caddy) — открыты"
     fi
 
     if [[ "$INSTALL_MODE" == "node" || "$INSTALL_MODE" == "panel+node" ]]; then
-        local gn_port="${NODE_GN_PORT:-443}"
         local agent_port="${NODE_AGENT_PORT:-2095}"
 
-        ufw allow "${gn_port}/tcp" comment "GhostNet VPN" >/dev/null 2>&1 || true
-        log_ok "Порт ${gn_port} (GhostNet) — открыт"
+        # В режиме panel+node порт 443 занят Caddy — GhostNet уйдёт на 8443
+        local effective_gn_port="${NODE_GN_PORT:-443}"
+        if [[ "$INSTALL_MODE" == "panel+node" && "$effective_gn_port" == "443" ]]; then
+            effective_gn_port="8443"
+        fi
+
+        if [[ "$effective_gn_port" != "443" ]]; then
+            ufw allow "${effective_gn_port}/tcp" comment "GhostNet VPN" >/dev/null 2>&1 || true
+            log_ok "Порт ${effective_gn_port} (GhostNet) — открыт"
+        fi
+        # Порт 443 для node в режиме только-node
+        if [[ "$INSTALL_MODE" == "node" ]]; then
+            ufw allow "${effective_gn_port}/tcp" comment "GhostNet VPN" >/dev/null 2>&1 || true
+            log_ok "Порт ${effective_gn_port} (GhostNet) — открыт"
+        fi
 
         # Ограничиваем агент-порт только для IP Panel (если знаем)
         local panel_ip=""
@@ -365,6 +377,8 @@ setup_firewall() {
             local panel_host
             panel_host=$(echo "$NODE_PANEL_URL" | sed 's~https\?://~~' | cut -d/ -f1)
             panel_ip=$(dig +short "$panel_host" 2>/dev/null | grep -E '^[0-9]+\.' | head -1) || panel_ip=""
+        elif [[ -n "${PANEL_DOMAIN:-}" ]]; then
+            panel_ip=$(dig +short "$PANEL_DOMAIN" 2>/dev/null | grep -E '^[0-9]+\.' | head -1) || panel_ip=""
         fi
 
         if [[ -n "$panel_ip" ]]; then
@@ -929,21 +943,23 @@ EOF
     log_ok ".env создан (chmod 600)"
 
     # ── requirements.txt (pip install через файл — надёжнее bash -c "...") ─
+    # Без жёстких версий — pip сам найдёт совместимые.
+    # Ограничение pydantic<2.14 нужно т.к. aiogram 3.x требует pydantic<2.14
     cat > /opt/ghostwave/panel/requirements.txt << 'EOF'
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-sqlalchemy[asyncio]==2.0.35
-asyncpg==0.29.0
-pydantic==2.9.2
-pydantic-settings==2.5.2
-bcrypt==4.2.0
-pyjwt==2.9.0
-redis[asyncio]==5.1.1
-httpx==0.27.2
-aiogram==3.13.0
-psutil==6.0.0
-cryptography==43.0.1
-alembic==1.13.3
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+pydantic<2.14
+pydantic-settings<2.14
+bcrypt
+pyjwt
+redis[asyncio]
+httpx
+aiogram
+psutil
+cryptography
+alembic
 EOF
     log_ok "requirements.txt создан"
 
@@ -1115,13 +1131,13 @@ EOF
 
     # ── requirements.txt для агента ───────────────────────────────────────
     cat > /opt/ghostwave-node/node/requirements.txt << 'EOF'
-fastapi==0.115.0
-uvicorn[standard]==0.30.6
-httpx==0.27.2
-pydantic==2.9.2
-pydantic-settings==2.5.2
-psutil==6.0.0
-cryptography==43.0.1
+fastapi
+uvicorn[standard]
+httpx
+pydantic<2.14
+pydantic-settings<2.14
+psutil
+cryptography
 EOF
 
     # ── Dockerfile Node ───────────────────────────────────────────────────
